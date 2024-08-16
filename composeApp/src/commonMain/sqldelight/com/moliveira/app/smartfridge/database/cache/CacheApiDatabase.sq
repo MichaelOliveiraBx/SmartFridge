@@ -1,0 +1,14 @@
+
+CREATE TABLE FoodModelEntity (
+    id TEXT PRIMARY KEY,
+    name_en TEXT,
+    name_fr TEXT,
+    thumbnail TEXT
+);
+
+insertFood:
+INSERT INTO FoodModelEntity (id, name_en, name_fr, thumbnail)
+VALUES (?, ?, ?, ?);
+
+selectById:
+SELECT * FROM FoodModelEntity WHERE id = ?;
