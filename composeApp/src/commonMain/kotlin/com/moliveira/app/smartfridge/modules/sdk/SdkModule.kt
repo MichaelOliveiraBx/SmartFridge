@@ -12,6 +12,7 @@ val sdkModule = module {
             install(ContentNegotiation) {
                 json(Json {
                     isLenient = true
+                    ignoreUnknownKeys = true
                 })
             }
         }

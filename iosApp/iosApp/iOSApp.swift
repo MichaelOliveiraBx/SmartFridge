@@ -6,6 +6,7 @@ import ComposeApp
 struct iOSApp: App {
     
     init() {
+        IOSKmmSetup.shared.setup()
         CameraViewPlatformNativeKt.cameraViewControllerProvider = {
             let controller = CameraViewController()
             controller.onTextChange = {

@@ -13,12 +13,17 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-plugin = "1.6.11"
 junit = "4.13.2"
-kotlin = "2.0.0"
+kotlin = "2.0.10"
 camerax_version = "1.3.4"
 koin = "3.5.3"
 ktor = "2.3.12"
 coroutines = "2.0.0"
 sqlDelight = "2.0.1"
+voyagerVersion = "1.1.0-beta02"
+molivesdkVersion = "0.0.6-dev4"
+kotlinxDatetime = "0.6.0"
+coil = "3.0.0-alpha10"
+napier = "2.7.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -50,6 +55,20 @@ sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sq
 sqlDelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
 sqlDelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
 
+voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
+voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
+voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
+voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyagerVersion" }
+
+molive-sdk = { module = "com.molive:sdk", version.ref = "molivesdkVersion" }
+
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
+
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-ktor2 = { group = "io.coil-kt.coil3", name = "coil-network-ktor2", version.ref = "coil" }
+coil-network-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+
+napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -57,3 +76,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

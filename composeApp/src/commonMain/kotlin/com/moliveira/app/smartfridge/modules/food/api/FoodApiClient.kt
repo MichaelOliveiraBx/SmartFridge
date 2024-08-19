@@ -12,8 +12,9 @@ private const val OPEN_FOOD_FACTS_BASE_URL = "https://world.openfoodfacts.org/ap
 
 @Serializable
 data class FoodProductDto(
-    val name_en: String?,
-    val name_fr: String?,
+    val product_name: String? = null,
+    val product_name_en: String? = null,
+    val product_name_fr: String? = null,
     val image_front_small_url: String?,
 )
 
@@ -33,8 +34,8 @@ class FoodApiClient(
                 FoodModel(
                     id = it.code,
                     name = LocalizedString(
-                        en = it.product.name_en,
-                        fr = it.product.name_fr,
+                        en = it.product.product_name_en ?: it.product.product_name,
+                        fr = it.product.product_name_fr ?: it.product.product_name,
                     ),
                     thumbnail = it.product.image_front_small_url,
                 )

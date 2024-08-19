@@ -14,25 +14,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.Navigator
 import com.moliveira.app.smartfridge.modules.camera.CameraView
+import com.moliveira.app.smartfridge.modules.home.ui.HomeScreenDestination
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        var text by remember { mutableStateOf("") }
-        var barcode by remember { mutableStateOf("") }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text)
-            Spacer(Modifier.height(8.dp))
-            Text(barcode)
-            Spacer(Modifier.height(8.dp))
-            CameraView(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                onTextRecognized = { text = it },
-                onBarcodeRecognized = { barcode = it }
-            )
-        }
-    }
+    Navigator(
+        HomeScreenDestination(),
+    )
 }

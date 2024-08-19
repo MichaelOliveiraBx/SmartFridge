@@ -75,6 +75,8 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         }
         textRecognitionRequest.recognitionLevel = .accurate
         textRecognitionRequest.usesLanguageCorrection = true
+
+
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -84,10 +86,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
             if let results = request.results as? [VNRecognizedTextObservation] {
                 for result in results {
                     if let candidate = result.topCandidates(1).first {
-                        print("Detected text: \(candidate.string)")
-                        DispatchQueue.main.async {
-                            self.onTextChange(candidate.string)
-                        }
+                        self.onTextChange(candidate.string)
                     }
                 }
             }
@@ -97,15 +96,18 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         request.recognitionLanguages = ["fr"] // Ou autre langue si nécessaire
         request.usesLanguageCorrection = true
         
+        let barCodeRequest = VNDetectBarcodesRequest{ (request, error) in
+            if let results = request.results as? [VNBarcodeObservation] {
+                for result in results {
+                    if let candidate = result.payloadStringValue {
+                        self.onBarCodeFound(candidate)
+                    }
+                }
+            }
+        }
+        barCodeRequest.symbologies = [.qr ,.ean8, .ean13]
+
         let requestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
-        try? requestHandler.perform([request])
+        try? requestHandler.perform([request, barCodeRequest])
     }
-    
-    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-         if let metadataObject = metadataObjects.first {
-             guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
-             guard let stringValue = readableObject.stringValue else { return }
-             self.onBarCodeFound(stringValue)
-         }
-     }
 }

@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -7,9 +6,11 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
 //        compilerOptions {
@@ -23,13 +24,12 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
-            isStatic = true
+            isStatic = false
         }
     }
 
@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.sqlDelight.android.driver)
+            implementation(libs.coil.network.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -57,6 +58,15 @@ kotlin {
             implementation(libs.ktor.client.negotiation)
             implementation(libs.ktor.client.serialization)
             implementation(libs.sqlDelight.runtime)
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
+            implementation(libs.voyager.koin)
+            implementation(libs.voyager.screenmodel)
+            implementation(libs.molive.sdk)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor2)
+            implementation(libs.napier)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
