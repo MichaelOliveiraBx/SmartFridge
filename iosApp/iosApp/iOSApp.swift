@@ -4,21 +4,18 @@ import ComposeApp
 
 @main
 struct iOSApp: App {
-    
+
     init() {
         IOSKmmSetup.shared.setup()
-        CameraViewPlatformNativeKt.cameraViewControllerProvider = {
+        let cameraInterface = KMMCameraRecognizerInterfaceProvider().kmmInterface
+        cameraInterface.setup {
             let controller = CameraViewController()
-            controller.onTextChange = {
-                CameraViewPlatformNativeKt.textRecognizedProvider($0)
-            }
-            controller.onBarCodeFound = {
-                CameraViewPlatformNativeKt.barCodeRecognizedProvider($0)
-            }
+            controller.onTextChange = cameraInterface.onTextRecognized
+            controller.onBarCodeFound = cameraInterface.onBarcodeRecognized
             return controller
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()

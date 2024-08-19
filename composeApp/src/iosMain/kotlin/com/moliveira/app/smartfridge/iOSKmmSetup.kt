@@ -2,6 +2,7 @@ package com.moliveira.app.smartfridge
 
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.database.cache.IOSDatabaseDriverFactory
+import com.moliveira.app.smartfridge.modules.camera.KMMCameraRecognizerInterface
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.context.startKoin
@@ -24,4 +25,5 @@ object IOSKmmSetup {
 
 private fun platformModules() = module {
     singleOf(::IOSDatabaseDriverFactory) { bind<DatabaseDriverFactory>() }
+    singleOf(::KMMCameraRecognizerInterface)
 }

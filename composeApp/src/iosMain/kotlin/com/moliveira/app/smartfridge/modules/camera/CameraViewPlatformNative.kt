@@ -6,14 +6,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.interop.UIKitViewController
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
+import org.koin.compose.koinInject
 import platform.CoreGraphics.CGRect
 import platform.QuartzCore.CATransaction
 import platform.QuartzCore.kCATransactionDisableActions
 import platform.UIKit.UIViewController
 
-var cameraViewControllerProvider: (() -> UIViewController)? = null
-var textRecognizedProvider: (String) -> Unit = { }
-var barCodeRecognizedProvider: (String) -> Unit = { }
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -22,15 +20,16 @@ fun CameraViewPlatformNative(
     onTextRecognized: (String) -> Unit,
     onBarcodeRecognized: (String) -> Unit,
 ) {
+    val cameraInterface: KMMCameraRecognizerInterface = koinInject()
     UIKitViewController(
         modifier = modifier,
         background = Color.Black,
         factory = {
-            val controller = cameraViewControllerProvider?.invoke()
-                ?: throw IllegalStateException("cameraViewControllerProvider is not set")
-            textRecognizedProvider = onTextRecognized
-            barCodeRecognizedProvider = onBarcodeRecognized
-            controller
+            cameraInterface.listen(
+                textRecognizedListener = onTextRecognized,
+                barCodeRecognizedListener = onBarcodeRecognized,
+            )
+            cameraInterface.viewControllerProvider.invoke()
         }, onResize = { container: UIViewController, rect: CValue<CGRect> ->
             CATransaction.begin()
             CATransaction.setValue(true, kCATransactionDisableActions)
