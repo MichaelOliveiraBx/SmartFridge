@@ -1,0 +1,16 @@
+
+CREATE TABLE UserFoodModelEntity (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    thumbnail TEXT NOT NULL,
+    addAt TEXT NOT NULL,
+    expirationDate TEXT NOT NULL,
+    notificationId TEXT
+);
+
+insertUserFood:
+INSERT INTO UserFoodModelEntity (id, name, thumbnail, addAt, expirationDate, notificationId)
+VALUES (?, ?, ?,  ?, ?, ?);
+
+selectUserFoods:
+SELECT * FROM UserFoodModelEntity;

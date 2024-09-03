@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.mokoResources)
 }
 
 kotlin {
@@ -45,7 +46,8 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
+            implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -67,6 +69,8 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor2)
             implementation(libs.napier)
+            implementation(libs.moko.resources.core)
+            implementation(libs.moko.resources.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -118,4 +122,14 @@ sqldelight {
             packageName.set("com.moliveira.app.smartfridge.database.cache")
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.moliveira.app.smartfridge"
+    generateResClass = always
+}
+
+multiplatformResources {
+    resourcesPackage.set("com.moliveira.app.smartfridge")
 }

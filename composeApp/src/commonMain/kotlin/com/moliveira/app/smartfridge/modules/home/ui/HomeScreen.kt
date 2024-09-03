@@ -2,6 +2,7 @@ package com.moliveira.app.smartfridge.modules.home.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -9,18 +10,25 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,45 +36,49 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.molive.sdk.extensions.BiasAlignmentExt
 import com.molive.sdk.loading.placeholder
 import com.molive.sdk.text.OutlinedText
 import com.molive.sdk.text.OutlinedTextStyle
 import com.moliveira.app.smartfridge.modules.camera.CameraView
-import com.moliveira.app.smartfridge.modules.food.FoodRepository
+import com.moliveira.app.smartfridge.modules.design.Button
+import com.moliveira.app.smartfridge.modules.design.ButtonType
+import com.moliveira.app.smartfridge.modules.design.ColorsTheme
 import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
-import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
 import com.moliveira.app.smartfridge.modules.sdk.ObserveUiEffect
-import com.moliveira.app.smartfridge.modules.sdk.localizedString
-import io.github.aakira.napier.Napier
-import io.ktor.util.logging.KtorSimpleLogger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format.char
 
 class HomeScreenDestination : Screen {
     @Composable
     override fun Content() {
         val viewModel = koinScreenModel<HomeViewModel>()
-        HomeScreen(viewModel)
+        val navigator = LocalNavigator.currentOrThrow
+        HomeScreen(
+            viewModel = viewModel,
+            goToDetails = {
+                navigator.push(FoodsDetailsScreenDestination())
+            }
+        )
     }
 }
 
@@ -95,150 +107,16 @@ sealed class HomeInternalState {
     ) : HomeInternalState()
 }
 
-class HomeViewStateConverter {
-    private val dateFormatter = LocalDate.Format {
-        dayOfMonth()
-        char('/')
-        monthNumber()
-        char('/')
-        yearTwoDigits(2000)
-    }
-
-    operator fun invoke(
-        internalState: HomeInternalState,
-    ): HomeState = when (internalState) {
-        is HomeInternalState.Idle -> {
-            HomeState()
-        }
-
-        is HomeInternalState.ProductInSearch -> {
-            HomeState(
-                productBanner = HomeProductBannerState(
-                    name = null,
-                    thumbnail = null,
-                    expirationDate = null,
-                ),
-            )
-        }
-
-        is HomeInternalState.ProductFound -> {
-            HomeState(
-                bottomBannerText = "Scanner la date de péremption",
-                productBanner = HomeProductBannerState(
-                    name = internalState.foodModel.name.localizedString(),
-                    thumbnail = internalState.foodModel.thumbnail,
-                    expirationDate = null,
-                ),
-            )
-        }
-
-        is HomeInternalState.DateSettled -> {
-            HomeState(
-                productBanner = HomeProductBannerState(
-                    name = internalState.foodModel.name.localizedString(),
-                    thumbnail = internalState.foodModel.thumbnail,
-                    expirationDate = dateFormatter.format(internalState.date),
-                ),
-            )
-        }
-    }
-}
-
 sealed class HomeUiEffect {
     data class DisplayMessage(
         val message: String,
     ) : HomeUiEffect()
 }
 
-class HomeViewModel(
-    private val foodRepository: FoodRepository,
-    private val converter: HomeViewStateConverter,
-) : BaseScreenModel<HomeState, HomeUiEffect>(
-    HomeState()
-) {
-
-    private val internalStateFlow = MutableStateFlow<HomeInternalState>(HomeInternalState.Idle)
-    override val uiStateProvider: Flow<HomeState>
-        get() = internalStateFlow.map(converter::invoke)
-
-    fun onBarcodeRecognized(text: String) {
-        Napier.w("onBarcodeRecognized: $text")
-        viewModelScope.launch(Dispatchers.Default) {
-            if (internalStateFlow.value !is HomeInternalState.Idle) return@launch
-
-            internalStateFlow.value = HomeInternalState.ProductInSearch
-            Napier.w("onBarcodeRecognized: getFoodById $text")
-            foodRepository.getFoodById(text)
-                .onSuccess {
-                    Napier.w("onBarcodeRecognized: getFoodById success $it")
-                    internalStateFlow.value = HomeInternalState.ProductFound(it)
-                }
-                .onFailure {
-                    Napier.w("onBarcodeRecognized: getFoodById failure $it")
-                    HomeInternalState.Idle
-                    sendUiEffect(HomeUiEffect.DisplayMessage("Product not found"))
-                }
-        }
-    }
-
-
-    private val dateRegex = Regex("""\d{1,2}/\d{1,2}/\d{2,4}""")
-    private val pointDateRegex = Regex("""\d{1,2}.\d{1,2}.\d{2,4}""")
-    fun onTextRecognized(text: String) {
-        viewModelScope.launch(Dispatchers.Default) {
-            val productFoundState =
-                (internalStateFlow.value as? HomeInternalState.ProductFound) ?: return@launch
-
-            val textMatch = pointDateRegex.find(text)
-                ?.value?.replace(".", "/")
-                ?.also { Napier.w("onTextRecognized: date found pointDateRegex $it") }
-                ?: dateRegex.find(text)?.value
-                    ?.also { Napier.w("onTextRecognized: date found slash $it") }
-                ?: return@launch
-
-            val yearSize = textMatch.split("/").last().length
-            Napier.w("onTextRecognized: date found $textMatch, yearSize: $yearSize")
-            runCatching {
-                val dateFormat = LocalDate.Format {
-                    dayOfMonth()
-                    char('/')
-                    monthNumber()
-                    char('/')
-                    if (yearSize == 2) yearTwoDigits(2000) else year()
-                }
-                LocalDate.parse(text, dateFormat)
-            }.onSuccess {
-                Napier.i("onTextRecognized: date parsed $it")
-                internalStateFlow.value = HomeInternalState.DateSettled(
-                    foodModel = productFoundState.foodModel,
-                    date = it,
-                )
-            }
-                .onFailure {
-                    Napier.w("onTextRecognized: date parse failure $it")
-                }
-        }
-    }
-
-    fun onAddProduct() {
-        viewModelScope.launch(Dispatchers.Default) {
-            val productFoundState =
-                (internalStateFlow.value as? HomeInternalState.DateSettled) ?: return@launch
-            Napier.w("onAddProduct: $productFoundState")
-            // TODO
-            internalStateFlow.value = HomeInternalState.Idle
-        }
-    }
-
-    fun onDeleteProduct() {
-        Napier.w("onDeleteProduct")
-        internalStateFlow.value = HomeInternalState.Idle
-    }
-}
-
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    goToDetails: () -> Unit = {},
 ) {
     val state by viewModel.uiStateFlow.collectAsStateWithLifecycle()
     var bottomMessage by remember { mutableStateOf<String?>(null) }
@@ -274,45 +152,158 @@ fun HomeScreen(
                 )
             }
         }
+
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .align(
+                    alignment = BiasAlignment(
+                        horizontalBias = 0.9f,
+                        verticalBias = 0.9f,
+                    ),
+                )
+                .clip(CircleShape)
+                .background(
+                    color = ColorsTheme.colors.primaryColor,
+                )
+                .clickable { goToDetails() }
+                .padding(8.dp),
+        ) {
+            Icon(
+                modifier = Modifier.fillMaxSize(),
+                imageVector = Icons.AutoMirrored.Filled.List,
+                contentDescription = null,
+                tint = ColorsTheme.colors.textOnPrimary,
+            )
+        }
     }
 }
 
 val baseOutlinedTextStyle = OutlinedTextStyle(
     style = TextStyle(
-        fontSize = 16.sp,
+        fontSize = 18.sp,
         color = Color.White,
     ),
-    outlinedColor = Color.Black,
-    outlinedWidth = 4.dp,
+    outlinedColor = Color(0xFF2B7E6E),
+    outlinedWidth = 3.dp,
 )
 
 @Composable
 fun HomeScreenContent(
     state: HomeState,
-    onTextRecognized: (String) -> Unit,
-    onBarcodeRecognized: (String) -> Unit,
-    onAddProduct: () -> Unit,
-    onDeleteProduct: () -> Unit,
+    onTextRecognized: (String) -> Unit = {},
+    onBarcodeRecognized: (String) -> Unit = {},
+    onAddProduct: () -> Unit = {},
+    onDeleteProduct: () -> Unit = {},
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        CameraView(
-            modifier = Modifier.fillMaxSize(),
-            onTextRecognized = onTextRecognized,
-            onBarcodeRecognized = onBarcodeRecognized,
-        )
+    val topInsetPadding = WindowInsets.statusBars
+        .asPaddingValues()
+        .calculateTopPadding()
 
-        state.productBanner?.let {
-            HomeScreenProductBanner(
-                modifier = Modifier
-                    .align(BiasAlignmentExt.horizontalCenter(-0.7f))
-                    .fillMaxWidth(0.9f),
-                state = it,
-                onAddProduct = onAddProduct,
-                onDeleteProduct = onDeleteProduct,
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    0.0f to Color(0xFF8ADACA),
+                    0.4f to Color(0xFF588B81),
+                ),
             )
+    ) {
+        Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .padding(top = topInsetPadding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "Qu'est ce qu'on ajoute",
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                    )
+                )
+                Text(
+                    text = "aujourd'hui ?",
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                    )
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(
+                        color = ColorsTheme.colors.backgroundColor,
+                    ),
+                contentAlignment = Center,
+            ) {
+                CameraView(
+                    modifier = Modifier.fillMaxSize(),
+                    onTextRecognized = onTextRecognized,
+                    onBarcodeRecognized = onBarcodeRecognized,
+                )
+
+                this@Column.FadeAnimatable(
+                    modifier = Modifier
+                        .align(BiasAlignmentExt.horizontalCenter(-1f))
+                        .padding(horizontal = 20.dp)
+                        .padding(top = 20.dp),
+                    value = state.productBanner,
+                ) {
+                    HomeScreenProductBanner(
+                        state = it,
+                        onAddProduct = onAddProduct,
+                        onDeleteProduct = onDeleteProduct,
+                    )
+                }
+            }
         }
+
+        Crossfade(
+            modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(0.7f)),
+            targetState = state.bottomBannerText,
+        ) {
+            if (it != null) {
+                OutlinedText(
+                    text = it,
+                    style = baseOutlinedTextStyle,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun <T> ColumnScope.FadeAnimatable(
+    modifier: Modifier,
+    value: T?,
+    content: @Composable (T) -> Unit,
+) {
+    var lastValidValue by remember { mutableStateOf<T?>(null) }
+    LaunchedEffect(value) {
+        if (value != null) {
+            lastValidValue = value
+        }
+    }
+
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = value != null,
+        enter = fadeIn(tween(400)),
+        exit = fadeOut(tween(400)),
+    ) {
+        lastValidValue?.let { content(it) }
     }
 }
 
@@ -320,86 +311,90 @@ fun HomeScreenContent(
 fun HomeScreenProductBanner(
     modifier: Modifier = Modifier,
     state: HomeProductBannerState,
-    onAddProduct: () -> Unit,
-    onDeleteProduct: () -> Unit,
+    onAddProduct: () -> Unit = {},
+    onDeleteProduct: () -> Unit = {},
 ) {
-    Row(
+    Column(
         modifier = modifier
             .background(
-                color = Color.Gray.copy(alpha = 0.8f),
+                color = ColorsTheme.colors.backgroundColor,
                 shape = RoundedCornerShape(16.dp),
             )
             .padding(vertical = 8.dp, horizontal = 8.dp),
-        verticalAlignment = CenterVertically,
     ) {
-        AsyncImage(
-            modifier = Modifier
-                .size(64.dp)
-                .placeholder(
-                    enable = state.thumbnail == null,
-                    shape = RoundedCornerShape(8.dp),
-                ),
-            model = state.thumbnail,
-            contentDescription = null,
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.Start,
+        Row(
+            modifier = Modifier,
+            verticalAlignment = CenterVertically,
         ) {
-            Text(
-                modifier = Modifier.placeholder(
-                    enable = state.name == null,
-                    color = Color.White,
-                ),
-                text = state.name.minForPlaceholder(size = 10),
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    color = Color.White,
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            AsyncImage(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .size(64.dp)
+                    .placeholder(
+                        enable = state.thumbnail == null,
+                        shape = RoundedCornerShape(8.dp),
+                    ),
+                model = state.thumbnail,
+                contentDescription = null,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                modifier = Modifier.placeholder(
-                    enable = state.expirationDate == null,
-                    color = Color.White,
-                ),
-                text = state.expirationDate.minForPlaceholder(size = 10),
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = Color.White,
-                ),
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        AnimatedVisibility(
-            modifier = Modifier.size(32.dp),
-            visible = state.expirationDate != null,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .clip(shape = CircleShape)
-                    .background(
-                        color = Color.Green,
-                    )
-                    .clickable(onClick = onAddProduct),
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Box(
-            Modifier
-                .size(32.dp)
-                .clip(shape = CircleShape)
-                .background(
-                    color = Color.Red,
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    modifier = Modifier.placeholder(
+                        enable = state.name == null,
+                        color = Color.LightGray,
+                        shimmerColor = Color.White,
+                    ),
+                    text = state.name.minForPlaceholder(size = 10),
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        color = ColorsTheme.colors.textOnBackground,
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                .clickable(onClick = onDeleteProduct),
-        )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    modifier = Modifier.placeholder(
+                        enable = state.expirationDate == null,
+                        color = Color.LightGray,
+                        shimmerColor = Color.White,
+                    ),
+                    text = state.expirationDate.minForPlaceholder(size = 10),
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                        color = ColorsTheme.colors.textOnBackground,
+                    ),
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.height(36.dp).fillMaxWidth(),
+        ) {
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                text = "Annuler",
+                type = ButtonType.SECONDARY,
+                onClick = onDeleteProduct,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                text = "Ajouter",
+                type = ButtonType.PRIMARY,
+                onClick = onAddProduct,
+                enable = state.expirationDate != null,
+            )
+
+        }
     }
 }
 

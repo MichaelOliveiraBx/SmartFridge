@@ -28,6 +28,7 @@ struct CameraView: UIViewControllerRepresentable {
 
 class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureMetadataOutputObjectsDelegate {
     var session: AVCaptureSession?
+    var previewLayer: AVCaptureVideoPreviewLayer!
     var onTextChange : (String) -> () = { $0 }
     var onBarCodeFound : (String) -> () = { $0 }
 
@@ -59,9 +60,16 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
             return
         }
         
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session!)
+        previewLayer = AVCaptureVideoPreviewLayer(session: session!)
         previewLayer.frame = view.bounds
+        previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Mettre à jour les dimensions du layer pour qu'il s'ajuste correctement lors de la rotation
+        previewLayer.frame = view.bounds
     }
     
     private func setupVision() {

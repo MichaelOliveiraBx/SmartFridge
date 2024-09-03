@@ -5,14 +5,19 @@ import com.moliveira.app.smartfridge.database.cache.IOSDatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.camera.KMMCameraRecognizerInterface
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.staticCFunction
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import platform.Foundation.NSSetUncaughtExceptionHandler
 
 object IOSKmmSetup {
     fun setup() {
         Napier.base(DebugAntilog())
+        setupCrash()
+
         startKoin {
             modules(
                 this@IOSKmmSetup.modules()
@@ -21,6 +26,15 @@ object IOSKmmSetup {
     }
 
     private fun modules() = AppModule.modules() + listOf(platformModules())
+
+    @OptIn(ExperimentalForeignApi::class)
+    private fun setupCrash() {
+        NSSetUncaughtExceptionHandler(
+            staticCFunction { exception ->
+                Napier.e("Uncaught exception: $exception")
+            }
+        )
+    }
 }
 
 private fun platformModules() = module {

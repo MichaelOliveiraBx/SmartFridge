@@ -24,6 +24,8 @@ molivesdkVersion = "0.0.6-dev4"
 kotlinxDatetime = "0.6.0"
 coil = "3.0.0-alpha10"
 napier = "2.7.1"
+mokoResources = "0.24.2"
+crashKios = "0.8.6"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -68,6 +70,11 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network-ktor2 = { group = "io.coil-kt.coil3", name = "coil-network-ktor2", version.ref = "coil" }
 coil-network-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 
+moko-resources-core = { group = "dev.icerock.moko", name = "resources", version.ref = "mokoResources" }
+moko-resources-compose = { group = "dev.icerock.moko", name = "resources-compose", version.ref = "mokoResources" }
+
+crashKios-core = { group = "co.touchlab.crashkios", name = "core", version.ref = "crashKios" }
+
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -77,3 +84,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResources" }
