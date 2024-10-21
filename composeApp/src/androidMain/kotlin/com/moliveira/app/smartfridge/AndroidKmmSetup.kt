@@ -3,6 +3,8 @@ package com.moliveira.app.smartfridge
 import android.content.Context
 import com.moliveira.app.smartfridge.database.cache.AndroidDatabaseDriverFactory
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
+import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilder
+import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilderPlatform
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.context.startKoin
@@ -30,4 +32,5 @@ private fun platformModules(
     appContext: Context
 ) = module {
     single { AndroidDatabaseDriverFactory(appContext) } bind DatabaseDriverFactory::class
+    factory { DataStoreBuilderPlatform(appContext) } bind DataStoreBuilder::class
 }

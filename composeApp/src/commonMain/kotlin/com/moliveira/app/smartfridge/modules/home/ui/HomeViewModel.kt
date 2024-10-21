@@ -1,24 +1,27 @@
 package com.moliveira.app.smartfridge.modules.home.ui
 
+import com.moliveira.app.smartfridge.Res
 import com.moliveira.app.smartfridge.modules.food.FoodRepository
 import com.moliveira.app.smartfridge.modules.food.database.FoodDatabase
+import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
+import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
+import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
+import com.moliveira.app.smartfridge.notification_title
+import com.moliveira.app.smartfridge.notification_title_description
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format.char
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.getString
 
 class HomeViewModel(
     private val foodRepository: FoodRepository,
@@ -59,42 +62,18 @@ class HomeViewModel(
         }
     }
 
-
-    private val dateRegex = Regex("""\d{1,2}/\d{1,2}/\d{2,4}""")
-    private val pointDateRegex = Regex("""\d{1,2}.\d{1,2}.\d{2,4}""")
     fun onTextRecognized(text: String) {
         viewModelScope.launch(Dispatchers.Default) {
             val productFoundState =
                 (internalStateFlow.value as? HomeInternalState.ProductFound) ?: return@launch
 
-            val textMatch = pointDateRegex.find(text)
-                ?.value?.replace(".", "/")
-                ?.also { Napier.w("onTextRecognized: date found pointDateRegex $it") }
-                ?: dateRegex.find(text)?.value
-                    ?.also { Napier.w("onTextRecognized: date found slash $it") }
-                ?: return@launch
-
-            val yearSize = textMatch.split("/").last().length
-            Napier.w("onTextRecognized: date found $textMatch, yearSize: $yearSize")
-            runCatching {
-                val dateFormat = LocalDate.Format {
-                    dayOfMonth()
-                    char('/')
-                    monthNumber()
-                    char('/')
-                    if (yearSize == 2) yearTwoDigits(2000) else year()
-                }
-                LocalDate.parse(text, dateFormat)
-            }.onSuccess {
+            DateRecognizer.invoke(text)?.let {
                 Napier.i("onTextRecognized: date parsed $it")
                 internalStateFlow.value = HomeInternalState.DateSettled(
                     foodModel = productFoundState.foodModel,
                     date = it,
                 )
             }
-                .onFailure {
-                    Napier.w("onTextRecognized: date parse failure $it")
-                }
         }
     }
 
@@ -103,20 +82,44 @@ class HomeViewModel(
             val productFoundState =
                 (internalStateFlow.value as? HomeInternalState.DateSettled) ?: return@launch
             Napier.w("onAddProduct: $productFoundState")
+            val notificationTime = productFoundState.date.handleNotificationTime()
+                ?: run {
+                    Napier.w("onAddProduct: notificationTime null")
+                    sendUiEffect(
+                        HomeUiEffect.DisplayMessage(
+                            "Sorry the date is already expired"
+                        )
+                    )
+                    return@launch
+                }
             notificationService.scheduleNotification(
-                title = "Hé oh !!",
-                body = "Tes ${productFoundState.foodModel.name} vont bientôt périmer",
+                title = getString(Res.string.notification_title),
+                body = getString(
+                    Res.string.notification_title_description,
+                    productFoundState.foodModel.name
+                ),
                 icon = null,
-                localDateTime = Clock.System.now()
-                    .plus(1, DateTimeUnit.MINUTE)
-                    .toLocalDateTime(TimeZone.currentSystemDefault()),
+                localDateTime = notificationTime,
             )
-                .onSuccess {
+                .onSuccess { notificationId ->
+                    productFoundState.foodModel.thumbnail?.let {
+                        sendUiEffect(
+                            HomeUiEffect.StartAddAnimation(
+                                it
+                            )
+                        )
+                    }
                     database.addUserFood(
                         model = productFoundState.foodModel,
-                        notificationId = it,
+                        notificationId = notificationId,
                         expirationDate = productFoundState.date,
-                    )
+                    ).onSuccess {
+                        Napier.w("onAddProduct: addUserFood success")
+                        database.addNotificationId(
+                            id = productFoundState.foodModel.id + "_" + productFoundState.date,
+                            notificationId = notificationId,
+                        )
+                    }
                 }
             isFirstScanFlow.value = false
             internalStateFlow.value = HomeInternalState.Idle

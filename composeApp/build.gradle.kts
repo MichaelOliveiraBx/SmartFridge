@@ -56,6 +56,8 @@ kotlin {
             implementation(libs.camerax.lifecycle)
             implementation(libs.camerax.view)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.negotiation)
             implementation(libs.ktor.client.serialization)
@@ -71,10 +73,19 @@ kotlin {
             implementation(libs.napier)
             implementation(libs.moko.resources.core)
             implementation(libs.moko.resources.compose)
+
+            implementation(libs.dataStore)
+            implementation(libs.dataStore.preferences)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.sqlDelight.native.driver)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.test.junit)
+            implementation(libs.junit.jupiter)
         }
     }
 }

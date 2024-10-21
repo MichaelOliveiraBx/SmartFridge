@@ -17,4 +17,8 @@ actual class NotificationServicePlatform : NotificationService {
         TODO("Not yet implemented")
     }
 
+    override suspend fun askForPermission(): Boolean {
+        TODO("Not yet implemented")
+    }
+
 }

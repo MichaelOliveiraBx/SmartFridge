@@ -1,6 +1,5 @@
 package com.moliveira.app.smartfridge.modules.sdk
 
-import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.NotificationServicePlatform
 import io.ktor.client.HttpClient
@@ -23,4 +22,5 @@ val sdkModule = module {
         }
     }
     singleOf(::NotificationServicePlatform) { bind<NotificationService>() }
+    singleOf(::SharedPrefs)
 }

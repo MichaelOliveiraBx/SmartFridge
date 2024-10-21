@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.repeatOnLifecycle
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-abstract class BaseScreenModel<S : Any, E : Any>(initialState: S) : ScreenModel {
+abstract class BaseScreenModel<S : Any, E : Any>(initialState: S) : ViewModel() {
     protected val viewModelScope = CoroutineScope(Job())
 
     val uiStateFlow: StateFlow<S> by lazy {
@@ -49,10 +50,10 @@ abstract class BaseScreenModel<S : Any, E : Any>(initialState: S) : ScreenModel 
         _uiEffects.emit(effect)
     }
 
-    override fun onDispose() {
-        viewModelScope.cancel()
-        super.onDispose()
-    }
+//    override fun onDispose() {
+//        viewModelScope.cancel()
+//        super.onDispose()
+//    }
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.moliveira.app.smartfridge.modules.notification
 
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import platform.Foundation.NSCalendar
@@ -24,6 +25,7 @@ actual class NotificationServicePlatform : NotificationService {
         icon: DrawableResource?,
         localDateTime: LocalDateTime,
     ): Result<String> {
+        Napier.w("scheduleNotification")
         if (!check()) {
             return Result.failure(IllegalStateException("Notification permission not granted"))
         }
@@ -73,6 +75,8 @@ actual class NotificationServicePlatform : NotificationService {
         val notificationCenter = currentNotificationCenter()
         notificationCenter.removePendingNotificationRequestsWithIdentifiers(listOf(id))
     }
+
+    override suspend fun askForPermission(): Boolean = check()
 }
 
 private fun LocalDateTime.toNSDateComponents(): NSDateComponents {

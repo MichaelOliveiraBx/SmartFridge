@@ -1,6 +1,7 @@
 
 CREATE TABLE UserFoodModelEntity (
     id TEXT PRIMARY KEY,
+    productId TEXT NOT NULL,
     name TEXT NOT NULL,
     thumbnail TEXT NOT NULL,
     addAt TEXT NOT NULL,
@@ -9,8 +10,8 @@ CREATE TABLE UserFoodModelEntity (
 );
 
 insertUserFood:
-INSERT INTO UserFoodModelEntity (id, name, thumbnail, addAt, expirationDate, notificationId)
-VALUES (?, ?, ?,  ?, ?, ?);
+INSERT INTO UserFoodModelEntity (id, productId, name, thumbnail, addAt, expirationDate, notificationId)
+VALUES (?, ?, ?, ?,  ?, ?, ?);
 
 selectUserFoods:
 SELECT * FROM UserFoodModelEntity;

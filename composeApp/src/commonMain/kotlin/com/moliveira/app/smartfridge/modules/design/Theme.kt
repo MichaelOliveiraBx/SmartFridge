@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moliveira.app.smartfridge.modules.theme.SFColors
 
 data class Colors(
     val backgroundColor: Color,
@@ -32,10 +33,10 @@ object ColorsThemeMode {
         primaryColor = Color(0xFF63C0AE),
         textOnBackground = Color(0xFF63C0AE),
         textOnPrimary = Color.White,
-        buttonPrimary = Color(0xFF63C0AE),
+        buttonPrimary = SFColors.secondary._500,
         buttonSecondary = Color.White,
         buttonTextPrimary = Color.White,
-        buttonTextSecondary = Color(0xFF63C0AE),
+        buttonTextSecondary = SFColors.secondary._500,
     )
 
     fun dark() = Colors(

@@ -1,0 +1,23 @@
+CREATE TABLE UserNotificationEntity (
+    id TEXT PRIMARY KEY,
+    notificationUuid TEXT NOT NULL
+);
+
+insertUserNotification:
+INSERT INTO UserNotificationEntity (id, notificationUuid)
+VALUES (?, ?);
+
+removeUserNotification:
+DELETE FROM UserNotificationEntity WHERE notificationUuid = ?;
+
+removeUserNotificationById:
+DELETE FROM UserNotificationEntity WHERE id = ?;
+
+hasNotification:
+SELECT * FROM UserNotificationEntity WHERE notificationUuid = ?;
+
+hasNotificationById:
+SELECT * FROM UserNotificationEntity WHERE id = ?;
+
+selectUserNotifications:
+SELECT * FROM UserNotificationEntity;

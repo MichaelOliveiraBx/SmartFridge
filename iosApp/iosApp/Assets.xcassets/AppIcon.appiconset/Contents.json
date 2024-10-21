@@ -1,10 +1,10 @@
 {
   "images" : [
     {
-      "filename" : "app-icon-1024.png",
+      "filename" : "bibidi-ios-small.png",
       "idiom" : "universal",
       "platform" : "ios",
-      "size" : "1024x1024"
+      "size" : "733x750"
     }
   ],
   "info" : {

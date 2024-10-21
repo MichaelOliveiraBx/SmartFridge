@@ -21,6 +21,7 @@ class HomeViewStateConverter {
         is HomeInternalState.Idle -> {
             HomeState(
                 bottomBannerText = if (firstScan) "On scan le code-barres" else null,
+                productBanner = null,
             )
         }
 

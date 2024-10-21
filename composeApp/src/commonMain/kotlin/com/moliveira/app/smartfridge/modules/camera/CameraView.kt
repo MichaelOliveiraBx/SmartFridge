@@ -35,7 +35,6 @@ fun CameraView(
                 )
             )
         }
-
     } else {
         CameraViewPlatform(
             modifier = modifier,

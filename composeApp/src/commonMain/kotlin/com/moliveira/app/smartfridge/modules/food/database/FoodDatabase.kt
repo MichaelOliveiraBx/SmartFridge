@@ -4,8 +4,10 @@ import com.moliveira.app.smartfridge.database.cache.CacheApiDatabase
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.food.domain.UserFoodModel
+import com.moliveira.app.smartfridge.modules.food.domain.UserNotificationModel
 import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
 import com.moliveira.app.smartfridge.modules.sdk.localizedString
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
@@ -20,6 +22,7 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
     private val database = CacheApiDatabase(databaseDriverFactory.createDriver("apiCacheFood.db"))
     private val dbQuery = database.cacheApiDatabaseQueries
     private val dbQueryFoodUser = database.userFoodTableQueries
+    private val dbQueryNotification = database.userNotificationTableQueries
 
     suspend fun getFoodById(id: String): FoodModel? = withContext(Dispatchers.IO) {
         dbQuery.selectById(id).executeAsOneOrNull()?.toFoodModel()
@@ -45,19 +48,22 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
         )
 
     suspend fun addUserFood(
-        model : FoodModel,
+        model: FoodModel,
         notificationId: String,
         expirationDate: LocalDate,
-    ) {
+    ): Result<Unit> = runCatching {
+        val date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            .dbFormat()
         withContext(Dispatchers.IO) {
             dbQueryFoodUser.insertUserFood(
-                id = model.id,
+                
+                id = model.id + "_" + expirationDate,
+                productId = model.id,
                 name = model.name.localizedString(),
                 thumbnail = model.thumbnail.orEmpty(),
                 expirationDate = expirationDate.dbFormat(),
                 notificationId = notificationId,
-                addAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    .dbFormat(),
+                addAt = date,
             )
         }
     }
@@ -68,6 +74,7 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
 
     private fun toUserFoodModel(
         id: String,
+        productId: String,
         name: String,
         thumbnail: String,
         addAt: String,
@@ -75,6 +82,7 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
         notificationId: String?,
     ): UserFoodModel = UserFoodModel(
         id = id,
+        productId = productId,
         name = name,
         thumbnail = thumbnail,
         addAt = addAt.dbParse(),
@@ -92,4 +100,32 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
     private fun String.localDatedbParse(): LocalDate =
         LocalDate.parse(this, LocalDate.Formats.ISO)
 
+    suspend fun addNotificationId(id: String, notificationId: String) =
+        withContext(Dispatchers.IO) {
+            dbQueryNotification.insertUserNotification(
+                id = id,
+                notificationUuid = notificationId,
+            )
+        }
+
+    suspend fun removeNotificationId(id: String) = withContext(Dispatchers.IO) {
+        dbQueryNotification.removeUserNotificationById(id)
+    }
+
+    suspend fun hasNotification(notificationUuid: String): Boolean = withContext(Dispatchers.IO) {
+        dbQueryNotification.hasNotification(notificationUuid).executeAsOneOrNull() != null
+    }
+
+    suspend fun hasNotificationById(id: String): Boolean = withContext(Dispatchers.IO) {
+        dbQueryNotification.hasNotificationById(id).executeAsOneOrNull() != null
+    }
+
+    suspend fun allNotificationModel(): List<UserNotificationModel> = withContext(Dispatchers.IO) {
+        dbQueryNotification.selectUserNotifications { id, notificationUuid ->
+            UserNotificationModel(
+                id = id,
+                uuid = notificationUuid,
+            )
+        }.executeAsList()
+    }
 }
