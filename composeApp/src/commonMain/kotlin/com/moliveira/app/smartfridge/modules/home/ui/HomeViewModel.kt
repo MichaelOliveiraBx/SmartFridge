@@ -43,15 +43,12 @@ class HomeViewModel(
         }
 
     fun onBarcodeRecognized(text: String) {
-        Napier.w("onBarcodeRecognized: $text")
         viewModelScope.launch(Dispatchers.Default) {
             if (internalStateFlow.value !is HomeInternalState.Idle) return@launch
 
             internalStateFlow.value = HomeInternalState.ProductInSearch
-            Napier.w("onBarcodeRecognized: getFoodById $text")
             foodRepository.getFoodById(text)
                 .onSuccess {
-                    Napier.w("onBarcodeRecognized: getFoodById success $it")
                     internalStateFlow.value = HomeInternalState.ProductFound(it)
                 }
                 .onFailure {

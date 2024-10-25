@@ -31,6 +31,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     var previewLayer: AVCaptureVideoPreviewLayer!
     var onTextChange : (String) -> () = { $0 }
     var onBarCodeFound : (String) -> () = { $0 }
+    let ciContext = CIContext() // Utilisé pour traiter les images Core Image
 
     
     override func viewDidLoad() {
@@ -89,10 +90,18 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
+        
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        // Application d'un filtre avant de l'afficher
+        let filteredImage = applyFilter(to: ciImage)
+        
         let request = VNRecognizeTextRequest { (request, error) in
             if let results = request.results as? [VNRecognizedTextObservation] {
                 for result in results {
+                    var count = 0
+                    result.topCandidates(10).forEach { VNRecognizedText in
+                        print("result [\(count)]: \(VNRecognizedText.string)")
+                    }
                     if let candidate = result.topCandidates(1).first {
                         self.onTextChange(candidate.string)
                     }
@@ -101,8 +110,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         }
 
         request.recognitionLevel = .accurate
-        request.recognitionLanguages = ["fr"] // Ou autre langue si nécessaire
-        request.usesLanguageCorrection = true
+        request.usesLanguageCorrection = false
         
         let barCodeRequest = VNDetectBarcodesRequest{ (request, error) in
             if let results = request.results as? [VNBarcodeObservation] {
@@ -115,7 +123,17 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
         }
         barCodeRequest.symbologies = [.qr ,.ean8, .ean13]
 
-        let requestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+        let requestHandler = VNImageRequestHandler(ciImage: filteredImage, options: [:])
         try? requestHandler.perform([request, barCodeRequest])
     }
+    
+    func applyFilter(to image: CIImage) -> CIImage {
+            // Applique un filtre pour augmenter le contraste par exemple
+            let filter = CIFilter(name: "CIColorControls")!
+            filter.setValue(image, forKey: kCIInputImageKey)
+            filter.setValue(1.2, forKey: kCIInputContrastKey)  // Ajustement du contraste
+            filter.setValue(0.8, forKey: kCIInputBrightnessKey) // Ajustement de la luminosité
+
+            return filter.outputImage ?? image
+        }
 }
