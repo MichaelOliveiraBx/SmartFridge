@@ -84,8 +84,6 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation(libs.kotlin.test.junit)
-            implementation(libs.junit.jupiter)
         }
     }
 }
