@@ -1,21 +1,21 @@
 <resources>
-    <string name="onboarding_title_1">Bienvenue</string>
-    <string name="onboarding_description_1">Mon but c’est de t’aider à ne plus gaspiller ce qui peut périmer dans ton frigo</string>
+    <string name="onboarding_title_1">Bienvenue sur Bibidi !</string>
+    <string name="onboarding_description_1">La seule appli / application (?) qui pense anti-gaspillage à ta place !</string>
     <string name="onboarding_title_2">Comment ça marche ?</string>
-    <string name="onboarding_description_2">Tu vas pouvoir, en scannant le code et la date de péremption de l’aliment que tu veux</string>
-    <string name="onboarding_title_3">Et après ?</string>
-    <string name="onboarding_description_3">Je viendrai te rappeler qu’il te reste quelques jours pour le consommer</string>
-    <string name="onboarding_description_4">Pour que je puisse t’aider, il faut que je puisse t’envoyer des rappels</string>
-    <string name="onboarding_description_banner">Authorise les notifications pour </string>
+    <string name="onboarding_description_2">Scan le code barre et la date de péremption de tes aliments frais, et BOOM ! Bibidi s'occupe de tout !</string>
+    <string name="onboarding_title_3">Comment ça ?</string>
+    <string name="onboarding_description_3">Quelques jours avant la date de péremption, je t'envoie une notification pour te rappeler de cuisiner cette petite merveille !</string>
+    <string name="onboarding_description_4">Pour que je puisse t’aider, il faut que je puisse t’envoyer des rappels alors,</string>
+    <string name="onboarding_description_banner">Autorise les notifications pour </string>
     <string name="cta_continue">Continuer</string>
-    <string name="cta_authorize">Authoriser</string>
+    <string name="cta_authorize">Autoriser</string>
     <string name="cta_cancel">Annuler</string>
     <string name="cta_add">Ajouter</string>
     <string name="home_title_1">Qu'est ce qu'on ajoute</string>
     <string name="home_title_2">aujourd'hui ?</string>
     <string name="common_expired_at">Expire le: </string>
     <string name="notification_title">Attention !</string>
-    <string name="notification_title_description"> va bientôt périmer</string>
+    <string name="notification_title_description"> va bientôt périmer. Il est temps de cuisinier cette petite merveille !</string>
     <string name="fridge_title_1">Votre </string>
     <string name="fridge_title_2">frigo</string>
 </resources>

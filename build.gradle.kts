@@ -41,7 +41,7 @@ tasks.register("exportIosArchive") {
     doLast {
         val archivePath = "$buildDir/iosArchives/iosApp.xcarchive"
         val exportPath = "$buildDir/iosArchives/Export"
-        val exportOptionsPlist = "iosApp/iosApp/Info.plist"  // Path to your export options plist file
+        val exportOptionsPlist = "iosApp/ExportOptions.plist"  // Path to your export options plist file
 
         exec {
             commandLine(

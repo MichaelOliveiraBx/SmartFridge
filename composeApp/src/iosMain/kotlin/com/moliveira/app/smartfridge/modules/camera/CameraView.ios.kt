@@ -15,14 +15,14 @@ actual fun CameraViewPlatform(
     onTextRecognized: (String) -> Unit,
     onBarcodeRecognized: (String) -> Unit,
 ) {
-//    Box(
-//        modifier = modifier.background(
-//            color = Color.LightGray
-//        ),
-//    )
-    CameraViewPlatformNative(
-        modifier = modifier,
-        onTextRecognized = onTextRecognized,
-        onBarcodeRecognized = onBarcodeRecognized,
+    Box(
+        modifier = modifier.background(
+            color = Color.LightGray
+        ),
     )
+//    CameraViewPlatformNative(
+//        modifier = modifier,
+//        onTextRecognized = onTextRecognized,
+//        onBarcodeRecognized = onBarcodeRecognized,
+//    )
 }

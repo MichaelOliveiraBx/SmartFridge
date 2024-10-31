@@ -197,16 +197,26 @@ fun FoodsDetailsScreen(
                 )
                 .padding(top = topInsetPadding),
         ) {
-            Icon(
+            Button(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(40.dp)
                     .align(Alignment.CenterStart)
-                    .offset(x = 16.dp)
-                    .clickable(onClick = onBack),
-                imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                contentDescription = null,
-                tint = Color.White,
-            )
+                    .offset(x = 8.dp),
+                onClick = onBack,
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White,
+                ),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+                    contentDescription = null,
+                )
+            }
+
             Row(
                 modifier = Modifier.align(Alignment.Center),
             ) {

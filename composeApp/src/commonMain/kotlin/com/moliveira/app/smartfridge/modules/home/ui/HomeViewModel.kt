@@ -78,7 +78,7 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             val productFoundState =
                 (internalStateFlow.value as? HomeInternalState.DateSettled) ?: return@launch
-            Napier.w("onAddProduct: $productFoundState")
+            Napier.w("onAddProduct: productFoundState:$productFoundState")
             val notificationTime = productFoundState.date.handleNotificationTime()
                 ?: run {
                     Napier.w("onAddProduct: notificationTime null")
@@ -101,9 +101,7 @@ class HomeViewModel(
                 .onSuccess { notificationId ->
                     productFoundState.foodModel.thumbnail?.let {
                         sendUiEffect(
-                            HomeUiEffect.StartAddAnimation(
-                                it
-                            )
+                            HomeUiEffect.StartAddAnimation(it)
                         )
                     }
                     database.addUserFood(
@@ -117,6 +115,22 @@ class HomeViewModel(
                             notificationId = notificationId,
                         )
                     }
+                        .onFailure {
+                            Napier.w("onAddProduct: addUserFood failure $it")
+                            sendUiEffect(
+                                HomeUiEffect.DisplayMessage(
+                                    "Sorry the date is already expired"
+                                )
+                            )
+                        }
+                }
+                .onFailure {
+                    Napier.w("onAddProduct: scheduleNotification failure $it")
+                    sendUiEffect(
+                        HomeUiEffect.DisplayMessage(
+                            "Sorry the date is already expired"
+                        )
+                    )
                 }
             isFirstScanFlow.value = false
             internalStateFlow.value = HomeInternalState.Idle

@@ -1,21 +1,22 @@
 <resources>
-    <string name="onboarding_title_1">Welcome</string>
-    <string name="onboarding_description_1">My goal is to help you stop wasting things that could go bad in your fridge.</string>
+    <string name="onboarding_title_1">Welcome to Bibidi !</string>
+    <string name="onboarding_description_1">The only app that thinks about anti-wasting for you !</string>
     <string name="onboarding_title_2">How does it work ?</string>
-    <string name="onboarding_description_2">You will be able to scan the code and expiration date of the item you want to add to your fridge.</string>
-    <string name="onboarding_title_3">And after ?</string>
-    <string name="onboarding_description_3">I will come to remind you that you have a few days left to consume it.</string>
+    <string name="onboarding_description_2">Scan the barcode and the expiration date of your fresh food, and BOOM ! Bibidi takes care of everything !</string>
+    <string name="onboarding_title_3">And then ?</string>
+    <string name="onboarding_description_3">A few days before the expiration date, I'll send you a notification to remind you to cook this delicious dish !</string>
     <string name="cta_continue">Continue</string>
     <string name="onboarding_description_4">In order for me to help you, I need to be able to send you reminders.</string>
     <string name="onboarding_description_banner">Allow notifications for </string>
-    <string name="cta_authorize">Authorize</string>
+    <string name="cta_continue">Continue</string>
+    <string name="cta_authorize">Allow</string>
     <string name="cta_cancel">Cancel</string>
     <string name="cta_add">Add</string>
     <string name="home_title_1">What do we add </string>
     <string name="home_title_2">today ?</string>
     <string name="common_expired_at">Expire on: </string>
     <string name="notification_title">Warning !</string>
-    <string name="notification_title_description"> will soon expire</string>
+    <string name="notification_title_description"> will soon expire. Time to cook this delicious dish !</string>
     <string name="fridge_title_1">Your </string>
     <string name="fridge_title_2">fridge</string>
 </resources>
