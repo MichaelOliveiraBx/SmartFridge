@@ -8,6 +8,8 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -63,6 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +75,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.molive.sdk.extensions.BiasAlignmentExt
+import com.molive.sdk.loading.minForPlaceholder
 import com.molive.sdk.loading.placeholder
 import com.molive.sdk.text.OutlinedText
 import com.molive.sdk.text.OutlinedTextStyle
@@ -91,6 +95,7 @@ import com.moliveira.app.smartfridge.modules.theme.SFColors
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -114,6 +119,7 @@ data class HomeProductBannerState(
     val name: String?,
     val thumbnail: String?,
     val expirationDate: String?,
+    val buttonIsLoading: Boolean = false,
 )
 
 data class HomeState(
@@ -262,19 +268,50 @@ fun HomeScreen(
             )
         }
 
-
         Crossfade(
-            modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(0.7f)),
+            modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(0.2f)),
             targetState = bottomMessage.value,
         ) {
             if (it != null) {
+                val offsetYAnimate = remember(it) { Animatable(0f) }
+                val alphaAnimate = remember(it) { Animatable(1f) }
+
                 LaunchedEffect(key1 = it) {
-                    delay(1500)
-                    bottomMessage.value = null
+                    launch {
+                        offsetYAnimate.animateTo(
+                            with(density) { -100.dp.toPx() },
+                            tween(
+                                durationMillis = 1500,
+                                easing = FastOutSlowInEasing,
+                            ),
+                        )
+                        bottomMessage.value = null
+                    }
+                    launch {
+                        alphaAnimate.animateTo(
+                            0f,
+                            tween(
+                                delayMillis = 1000,
+                                durationMillis = 500,
+                                easing = FastOutSlowInEasing,
+                            ),
+                        )
+                    }
                 }
                 OutlinedText(
+                    modifier = Modifier
+                        .offset(y = with(density) { offsetYAnimate.value.toDp() })
+                        .alpha(alphaAnimate.value),
                     text = it,
-                    style = baseOutlinedTextStyle,
+                    style = OutlinedTextStyle(
+                        style = TextStyle(
+                            fontSize = 22.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                        outlinedColor = SFColors.primary._300,
+                        outlinedWidth = 3.dp,
+                    ),
                 )
             }
         }
@@ -531,6 +568,7 @@ fun HomeScreenProductBanner(
                 type = ButtonType.PRIMARY,
                 onClick = onAddProduct,
                 enable = state.expirationDate != null,
+                isLoading = state.buttonIsLoading,
             )
 
         }
@@ -564,6 +602,33 @@ class DpOffsetAnimationDataToVector(
     }
 }
 
+data class DpYOffsetAlpha(
+    val offset: Dp,
+    val alpha: Float,
+)
+
+class DpYOffsetAlphaAnimationDataToVector(
+    private val density: Density,
+) : TwoWayConverter<DpYOffsetAlpha, AnimationVector2D> {
+    override val convertFromVector: (AnimationVector2D) -> DpYOffsetAlpha = {
+        with(density) {
+            DpYOffsetAlpha(
+                offset = it.v1.toDp(),
+                alpha = it.v2,
+            )
+        }
+    }
+
+    override val convertToVector: (DpYOffsetAlpha) -> AnimationVector2D = {
+        with(density) {
+            AnimationVector2D(
+                v1 = it.offset.toPx(),
+                v2 = it.alpha,
+            )
+        }
+    }
+}
+
 object OffsetAnimationDataToVector : TwoWayConverter<Offset, AnimationVector2D> {
     override val convertFromVector: (AnimationVector2D) -> Offset = {
         Offset(
@@ -582,6 +647,22 @@ object OffsetAnimationDataToVector : TwoWayConverter<Offset, AnimationVector2D> 
 
 @Composable
 internal inline fun animatableDpOffset(
+    initialValue: DpYOffsetAlpha = DpYOffsetAlpha(0.dp, 1f),
+    label: String = "DpYOffsetAlpha",
+): Animatable<DpYOffsetAlpha, AnimationVector2D> {
+    val density = LocalDensity.current
+    return remember {
+        Animatable(
+            initialValue = initialValue,
+            typeConverter = DpYOffsetAlphaAnimationDataToVector(density),
+            label = label,
+        )
+    }
+}
+
+
+@Composable
+internal inline fun animatableDpOffsetAlpha(
     initialValue: DpOffset = DpOffset.Zero,
     label: String = "DpOffsetAnimation",
 ): Animatable<DpOffset, AnimationVector2D> {

@@ -1,8 +1,14 @@
 package com.moliveira.app.smartfridge.modules.home.ui
 
+import com.moliveira.app.smartfridge.Res
+import com.moliveira.app.smartfridge.home_bottom_text_scan_barcode
+import com.moliveira.app.smartfridge.home_bottom_text_scan_date
+import com.moliveira.app.smartfridge.home_bottom_text_scan_ready
+import com.moliveira.app.smartfridge.home_title_2
 import com.moliveira.app.smartfridge.modules.sdk.localizedString
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.char
+import org.jetbrains.compose.resources.getString
 
 val SimpleDateFormatter = LocalDate.Format {
     dayOfMonth()
@@ -14,13 +20,14 @@ val SimpleDateFormatter = LocalDate.Format {
 
 class HomeViewStateConverter {
 
-    operator fun invoke(
+    suspend operator fun invoke(
         internalState: HomeInternalState,
         firstScan: Boolean,
+        buttonIsLoading: Boolean,
     ): HomeState = when (internalState) {
         is HomeInternalState.Idle -> {
             HomeState(
-                bottomBannerText = if (firstScan) "On scan le code-barres" else null,
+                bottomBannerText = if (firstScan) getString(Res.string.home_bottom_text_scan_barcode) else null,
                 productBanner = null,
             )
         }
@@ -37,22 +44,24 @@ class HomeViewStateConverter {
 
         is HomeInternalState.ProductFound -> {
             HomeState(
-                bottomBannerText = "Et maintenant la date de péremption",
+                bottomBannerText = getString(Res.string.home_bottom_text_scan_date),
                 productBanner = HomeProductBannerState(
                     name = internalState.foodModel.name.localizedString(),
                     thumbnail = internalState.foodModel.thumbnail,
                     expirationDate = null,
+                    buttonIsLoading = buttonIsLoading,
                 ),
             )
         }
 
         is HomeInternalState.DateSettled -> {
             HomeState(
-                bottomBannerText = if (firstScan) "C'est prêt a etre enregistré !" else null,
+                bottomBannerText = if (firstScan) getString(Res.string.home_bottom_text_scan_ready) else null,
                 productBanner = HomeProductBannerState(
                     name = internalState.foodModel.name.localizedString(),
                     thumbnail = internalState.foodModel.thumbnail,
                     expirationDate = SimpleDateFormatter.format(internalState.date),
+                    buttonIsLoading = buttonIsLoading,
                 ),
             )
         }

@@ -82,6 +82,12 @@ private fun typography() = Typography(
         fontSize = 24.sp,
         color = ColorsTheme.colors.primaryColor,
     ),
+    titleSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        color = ColorsTheme.colors.primaryColor,
+    ),
 )
 
 

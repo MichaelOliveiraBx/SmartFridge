@@ -3,11 +3,9 @@ package com.moliveira.app.smartfridge.modules.home.ui
 import com.moliveira.app.smartfridge.Res
 import com.moliveira.app.smartfridge.modules.food.FoodRepository
 import com.moliveira.app.smartfridge.modules.food.database.FoodDatabase
-import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
-import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
 import com.moliveira.app.smartfridge.notification_title
 import com.moliveira.app.smartfridge.notification_title_description
 import io.github.aakira.napier.Napier
@@ -16,30 +14,26 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimePeriod
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.getString
 
 class HomeViewModel(
     private val foodRepository: FoodRepository,
     private val converter: HomeViewStateConverter,
     private val notificationService: NotificationService,
-    private val database: FoodDatabase,
 ) : BaseScreenModel<HomeState, HomeUiEffect>(
     HomeState()
 ) {
 
     private val isFirstScanFlow = MutableStateFlow(true)
     private val internalStateFlow = MutableStateFlow<HomeInternalState>(HomeInternalState.Idle)
+    private val buttonIsLoadingFlow = MutableStateFlow(false)
     override val uiStateProvider: Flow<HomeState>
         get() = combine(
             internalStateFlow,
             isFirstScanFlow,
-        ) { internalState, firstScan ->
-            converter(internalState, firstScan)
+            buttonIsLoadingFlow,
+        ) { internalState, firstScan, buttonIsLoading ->
+            converter(internalState, firstScan, buttonIsLoading)
         }
 
     fun onBarcodeRecognized(text: String) {
@@ -99,36 +93,30 @@ class HomeViewModel(
                 localDateTime = notificationTime,
             )
                 .onSuccess { notificationId ->
-                    productFoundState.foodModel.thumbnail?.let {
-                        sendUiEffect(
-                            HomeUiEffect.StartAddAnimation(it)
-                        )
-                    }
-                    database.addUserFood(
+                    foodRepository.addUserFood(
                         model = productFoundState.foodModel,
                         notificationId = notificationId,
                         expirationDate = productFoundState.date,
-                    ).onSuccess {
-                        Napier.w("onAddProduct: addUserFood success")
-                        database.addNotificationId(
-                            id = productFoundState.foodModel.id + "_" + productFoundState.date,
-                            notificationId = notificationId,
+                    ).onFailure {
+                        Napier.w("onAddProduct: addUserFood failure $it")
+                        sendUiEffect(
+                            HomeUiEffect.DisplayMessage(
+                                "Sorry this product is already added"
+                            )
                         )
-                    }
-                        .onFailure {
-                            Napier.w("onAddProduct: addUserFood failure $it")
+                    }.onSuccess {
+                        productFoundState.foodModel.thumbnail?.let {
                             sendUiEffect(
-                                HomeUiEffect.DisplayMessage(
-                                    "Sorry the date is already expired"
-                                )
+                                HomeUiEffect.StartAddAnimation(it)
                             )
                         }
+                    }
                 }
                 .onFailure {
                     Napier.w("onAddProduct: scheduleNotification failure $it")
                     sendUiEffect(
                         HomeUiEffect.DisplayMessage(
-                            "Sorry the date is already expired"
+                            "Sorry there is an error !"
                         )
                     )
                 }

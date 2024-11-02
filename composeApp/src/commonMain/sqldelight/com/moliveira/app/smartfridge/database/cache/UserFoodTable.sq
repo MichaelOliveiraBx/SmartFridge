@@ -15,3 +15,6 @@ VALUES (?, ?, ?, ?,  ?, ?, ?);
 
 selectUserFoods:
 SELECT * FROM UserFoodModelEntity;
+
+deleteUserFood:
+DELETE FROM UserFoodModelEntity WHERE id = ?;

@@ -51,13 +51,14 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
         model: FoodModel,
         notificationId: String,
         expirationDate: LocalDate,
-    ): Result<Unit> = runCatching {
+    ): Result<String> = runCatching {
         val date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
             .dbFormat()
         withContext(Dispatchers.IO) {
+            val id = model.id + "_" + expirationDate
             dbQueryFoodUser.insertUserFood(
                 
-                id = model.id + "_" + expirationDate,
+                id = id,
                 productId = model.id,
                 name = model.name.localizedString(),
                 thumbnail = model.thumbnail.orEmpty(),
@@ -65,11 +66,16 @@ class FoodDatabase(databaseDriverFactory: DatabaseDriverFactory) {
                 notificationId = notificationId,
                 addAt = date,
             )
+            id
         }
     }
 
     suspend fun getAllUserFood(): List<UserFoodModel> = withContext(Dispatchers.IO) {
         dbQueryFoodUser.selectUserFoods(::toUserFoodModel).executeAsList()
+    }
+
+    suspend fun deleteUserFood(id: String) = withContext(Dispatchers.IO) {
+        dbQueryFoodUser.deleteUserFood(id)
     }
 
     private fun toUserFoodModel(

@@ -1,6 +1,6 @@
 <resources>
     <string name="onboarding_title_1">Bienvenue sur Bibidi !</string>
-    <string name="onboarding_description_1">La seule appli / application (?) qui pense anti-gaspillage à ta place !</string>
+    <string name="onboarding_description_1">La seule appli qui pense anti-gaspillage à ta place !</string>
     <string name="onboarding_title_2">Comment ça marche ?</string>
     <string name="onboarding_description_2">Scan le code barre et la date de péremption de tes aliments frais, et BOOM ! Bibidi s'occupe de tout !</string>
     <string name="onboarding_title_3">Comment ça ?</string>
@@ -18,4 +18,9 @@
     <string name="notification_title_description"> va bientôt périmer. Il est temps de cuisinier cette petite merveille !</string>
     <string name="fridge_title_1">Votre </string>
     <string name="fridge_title_2">frigo</string>
+    <string name="home_bottom_text_scan_barcode">Scan le code-barre</string>
+    <string name="home_bottom_text_scan_date">Et maintenant la date de péremption</string>
+    <string name="home_bottom_text_scan_ready">C'est prêt !</string>
+    <string name="common_delete">Supprimer</string>
+    <string name="dialog_delete_description">Es tu sûr de vouloir le supprimer ton frigo ?</string>
 </resources>

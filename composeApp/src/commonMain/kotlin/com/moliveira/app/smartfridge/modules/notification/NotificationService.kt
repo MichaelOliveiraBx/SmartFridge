@@ -1,6 +1,7 @@
 package com.moliveira.app.smartfridge.modules.notification
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -35,13 +36,13 @@ fun LocalDate.handleNotificationTime(): LocalDateTime? {
     val timeZone = TimeZone.currentSystemDefault()
     val now = Clock.System.now().toLocalDateTime(timeZone).date
 
-    this.plus(DatePeriod(days = 1))
     val minus2Days = minus(DatePeriod(days = 2))
     val minus1Day = minus(DatePeriod(days = 1))
 
+    Napier.d("now: $now minus2Days: $minus2Days minus1Day: $minus1Day")
     return when {
         minus2Days > now -> minus2Days
-        minus1Day > now -> minus1Day
+        minus1Day >= now -> minus1Day
         else -> null
     }?.let {
         LocalDateTime(
