@@ -37,7 +37,7 @@ class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBuff
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCamera()
-        setupVision()
+        setupVision()
     }
     
     private func setupCamera() {
