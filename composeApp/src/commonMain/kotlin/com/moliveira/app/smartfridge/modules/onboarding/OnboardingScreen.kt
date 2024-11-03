@@ -1,8 +1,15 @@
+@file:OptIn(ExperimentalAnimationApi::class)
+
 package com.moliveira.app.smartfridge.modules.onboarding
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +48,6 @@ import com.moliveira.app.smartfridge.onboarding_description_3
 import com.moliveira.app.smartfridge.onboarding_title_1
 import com.moliveira.app.smartfridge.onboarding_title_2
 import com.moliveira.app.smartfridge.onboarding_title_3
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -135,10 +141,20 @@ fun OnboardingScreen(
         )
 
         Spacer(modifier = Modifier.weight(1f))
-        Crossfade(
+        AnimatedContent(
+            modifier = Modifier.fillMaxWidth(),
             targetState = step,
+            transitionSpec = {
+                slideInHorizontally { fullWidth -> fullWidth } togetherWith
+                        slideOutHorizontally { fullWidth -> -fullWidth }
+            }
         ) {
-            step.content()
+            Box(
+                Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                it.content()
+            }
         }
         Spacer(modifier = Modifier.weight(1.4f))
 

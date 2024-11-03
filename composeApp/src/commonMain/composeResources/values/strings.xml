@@ -23,4 +23,11 @@
     <string name="home_bottom_text_scan_ready">C'est prêt !</string>
     <string name="common_delete">Supprimer</string>
     <string name="dialog_delete_description">Es tu sûr de vouloir le supprimer ton frigo ?</string>
+    <string name="by_date_added">Ajout</string>
+    <string name="by_date_expired">Péremption</string>
+    <string name="this_week">Cette semaine</string>
+    <string name="this_month">Ce mois</string>
+    <string name="this_year">Cette année</string>
+    <string name="common_expired">Périmés</string>
+    <string name="more_late">Plus tard</string>
 </resources>

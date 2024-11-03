@@ -1,11 +1,15 @@
 package com.moliveira.app.smartfridge.modules.home.ui
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +19,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +47,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.molive.sdk.architecture.DisposableEffectWithLifecycle
 import com.moliveira.app.smartfridge.Res
+import com.moliveira.app.smartfridge.by_date_added
+import com.moliveira.app.smartfridge.by_date_expired
 import com.moliveira.app.smartfridge.fridge_title_1
 import com.moliveira.app.smartfridge.fridge_title_2
 import com.moliveira.app.smartfridge.modules.theme.SFColors
@@ -49,8 +56,19 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 data class FoodsDetailsScreenState(
-    val foodItems: List<FoodItemState> = emptyList(),
+    val foodItems: List<FoodsDetailsItem> = emptyList(),
+    val filterType: FilterType = FilterType.Expired,
 )
+
+sealed class FoodsDetailsItem {
+    data class Food(
+        val state: FoodItemState = FoodItemState(),
+    ) : FoodsDetailsItem()
+
+    data class Divider(
+        val title: String,
+    ) : FoodsDetailsItem()
+}
 
 class FoodsDetailsScreenDestination : Screen {
     @Composable
@@ -68,6 +86,7 @@ class FoodsDetailsScreenDestination : Screen {
             onBack = { navigator.pop() },
             onNotificationClick = viewModel::onNotificationClick,
             onDeleteClick = viewModel::onDeleteClick,
+            onFilterClick = viewModel::onFilterClick,
         )
     }
 }
@@ -78,6 +97,7 @@ fun FoodsDetailsScreen(
     onBack: () -> Unit = {},
     onNotificationClick: (String) -> Unit = {},
     onDeleteClick: (String) -> Unit = {},
+    onFilterClick: (FilterType) -> Unit = {},
 ) {
     var dialogDelete by remember { mutableStateOf<Pair<String, String>?>(null) }
 
@@ -99,22 +119,102 @@ fun FoodsDetailsScreen(
                 color = SFColors.primary._300,
             ),
     ) {
-        val topInsetPadding = WindowInsets.statusBars
-            .asPaddingValues()
-            .calculateTopPadding()
+        Header(
+            onBack = onBack,
+            filterType = state.filterType,
+            onFilterClick = onFilterClick,
+        )
 
+
+        Crossfade(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            targetState = state.foodItems,
+            animationSpec = tween(400),
+        ) { items ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(0.dp, 8.dp, 0.dp, 0.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(items) { item ->
+                    when (item) {
+                        is FoodsDetailsItem.Divider -> DividerItem(title = item.title)
+                        is FoodsDetailsItem.Food -> {
+                            FoodItem(
+                                state = item.state,
+                                onNotificationClick = onNotificationClick,
+                                onDeleteClick = {
+                                    dialogDelete = item.state.id to item.state.name
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DividerItem(
+    title: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp + topInsetPadding)
+                .weight(1f)
+                .height(2.dp)
                 .background(
-                    color = SFColors.primary._200,
-                    shape = RoundedCornerShape(
-                        bottomStart = 24.dp,
-                        bottomEnd = 24.dp,
-                    )
+                    color = Color.White,
+                ),
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White,
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(2.dp)
+                .background(
+                    color = Color.White,
+                ),
+        )
+    }
+}
+
+@Composable
+private fun Header(
+    modifier: Modifier = Modifier,
+    filterType: FilterType,
+    onBack: () -> Unit = {},
+    onFilterClick: (FilterType) -> Unit = {},
+) {
+    val topInsetPadding = WindowInsets.statusBars
+        .asPaddingValues()
+        .calculateTopPadding()
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                color = SFColors.primary._200,
+                shape = RoundedCornerShape(
+                    bottomStart = 24.dp,
+                    bottomEnd = 24.dp,
                 )
-                .padding(top = topInsetPadding),
+            )
+            .padding(top = topInsetPadding),
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .height(40.dp + topInsetPadding),
         ) {
             Button(
                 modifier = Modifier
@@ -154,21 +254,63 @@ fun FoodsDetailsScreen(
                 )
             }
         }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            contentPadding = PaddingValues(0.dp, 8.dp, 0.dp, 0.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        Row(
+            modifier = Modifier
+                .align(Alignment.Start),
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            items(state.foodItems) { item ->
-                FoodItem(
-                    state = item,
-                    onNotificationClick = onNotificationClick,
-                    onDeleteClick = {
-                        dialogDelete = item.id to item.name
-                    },
-                )
-            }
+            Spacer(modifier = Modifier.width(24.dp))
+            FilterItem(
+                filterType = FilterType.Expired,
+                isSelected = filterType == FilterType.Expired,
+                onClick = { onFilterClick(FilterType.Expired) },
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            FilterItem(
+                filterType = FilterType.Added,
+                isSelected = filterType == FilterType.Added,
+                onClick = { onFilterClick(FilterType.Added) },
+            )
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
+}
+
+@Composable
+private fun FilterItem(
+    filterType: FilterType,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val backgroundColor by animateColorAsState(
+        if (isSelected) SFColors.secondary._500 else Color.White
+    )
+    val textColor by animateColorAsState(
+        if (isSelected) Color.White else SFColors.secondary._500
+    )
+
+    Button(
+        modifier = Modifier,
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            contentColor = Color.Transparent,
+        ),
+        contentPadding = PaddingValues(
+            horizontal = 12.dp,
+            vertical = 2.dp,
+        ),
+    ) {
+        Text(
+            text = filterType.displayedName(),
+            style = MaterialTheme.typography.bodyLarge,
+            color = textColor,
+        )
+    }
+}
+
+@Composable
+fun FilterType.displayedName() = when (this) {
+    FilterType.Added -> stringResource(Res.string.by_date_added)
+    FilterType.Expired -> stringResource(Res.string.by_date_expired)
 }
