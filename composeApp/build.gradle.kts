@@ -36,6 +36,12 @@ kotlin {
 
     sourceSets {
 
+        named { it.lowercase().startsWith("ios") }.configureEach {
+            languageSettings {
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+            }
+        }
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -76,6 +82,12 @@ kotlin {
 
             implementation(libs.dataStore)
             implementation(libs.dataStore.preferences)
+
+            implementation(libs.purchases.core)
+            implementation(libs.purchases.datetime)
+            implementation(libs.purchases.either)
+            implementation(libs.purchases.result)
+            implementation(libs.purchases.ui)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

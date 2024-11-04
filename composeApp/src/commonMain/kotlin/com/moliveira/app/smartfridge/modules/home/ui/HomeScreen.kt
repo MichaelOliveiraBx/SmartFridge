@@ -92,6 +92,8 @@ import com.moliveira.app.smartfridge.modules.design.ColorsTheme
 import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.sdk.ObserveUiEffect
 import com.moliveira.app.smartfridge.modules.theme.SFColors
+import com.revenuecat.purchases.kmp.ui.revenuecatui.Paywall
+import com.revenuecat.purchases.kmp.ui.revenuecatui.PaywallOptions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -175,6 +177,21 @@ fun HomeScreen(
     var detailButtonPosition by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val scaleButtonAnimatable = remember { Animatable(1f) }
     val alphaIconAnimatable = remember { Animatable(0f) }
+
+    var displayPaywall by remember { mutableStateOf(false) }
+    val options = remember {
+        PaywallOptions(dismissRequest = { displayPaywall = false }) {
+            shouldDisplayDismissButton = true
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(3000)
+    }
+
+    if (displayPaywall) {
+        Paywall(options)
+    }
 
     LaunchedEffect(key1 = addedAnimationModel) {
         if (addedAnimationModel != null) {

@@ -5,6 +5,9 @@ import com.moliveira.app.smartfridge.database.cache.AndroidDatabaseDriverFactory
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilder
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilderPlatform
+import com.revenuecat.purchases.kmp.LogLevel
+import com.revenuecat.purchases.kmp.Purchases
+import com.revenuecat.purchases.kmp.configure
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.koin.core.context.startKoin
@@ -16,6 +19,12 @@ object AndroidKmmSetup {
         appContext: Context,
     ) {
         Napier.base(DebugAntilog())
+
+        Purchases.logLevel = LogLevel.DEBUG
+        Purchases.configure(apiKey = "app31e7760c18") {
+
+        }
+
         startKoin {
             modules(
                 modules(appContext)
