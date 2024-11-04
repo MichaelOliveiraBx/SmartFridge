@@ -1,6 +1,5 @@
 package com.moliveira.app.smartfridge.modules.home.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -51,6 +50,7 @@ import com.moliveira.app.smartfridge.by_date_added
 import com.moliveira.app.smartfridge.by_date_expired
 import com.moliveira.app.smartfridge.fridge_title_1
 import com.moliveira.app.smartfridge.fridge_title_2
+import com.moliveira.app.smartfridge.modules.sdk.CrossfadeKey
 import com.moliveira.app.smartfridge.modules.theme.SFColors
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -61,13 +61,19 @@ data class FoodsDetailsScreenState(
 )
 
 sealed class FoodsDetailsItem {
+    abstract val uiId: String
+
     data class Food(
         val state: FoodItemState = FoodItemState(),
-    ) : FoodsDetailsItem()
+    ) : FoodsDetailsItem() {
+        override val uiId = state.id
+    }
 
     data class Divider(
         val title: String,
-    ) : FoodsDetailsItem()
+    ) : FoodsDetailsItem() {
+        override val uiId = title
+    }
 }
 
 class FoodsDetailsScreenDestination : Screen {
@@ -124,21 +130,22 @@ fun FoodsDetailsScreen(
             filterType = state.filterType,
             onFilterClick = onFilterClick,
         )
-
-
-        Crossfade(
+        CrossfadeKey(
             modifier = Modifier.fillMaxWidth().weight(1f),
             targetState = state.foodItems,
-            animationSpec = tween(400),
-        ) { items ->
+            animationSpec = tween(500),
+            contentKey = { it.map { it.uiId } },
+        ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(0.dp, 8.dp, 0.dp, 0.dp),
+                contentPadding = PaddingValues(0.dp, 12.dp, 0.dp, 0.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(items) { item ->
+                items(it) { item ->
                     when (item) {
-                        is FoodsDetailsItem.Divider -> DividerItem(title = item.title)
+                        is FoodsDetailsItem.Divider ->
+                            DividerItem(title = item.title)
+
                         is FoodsDetailsItem.Food -> {
                             FoodItem(
                                 state = item.state,
@@ -147,6 +154,7 @@ fun FoodsDetailsScreen(
                                     dialogDelete = item.state.id to item.state.name
                                 },
                             )
+
                         }
                     }
                 }
