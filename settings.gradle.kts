@@ -28,11 +28,7 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven {
-            url = URI("s3://micka-maven-repo")
-            credentials(AwsCredentials::class.java) {
-                accessKey = "AKIA5F6SSNJYTH672QBZ" // System.getenv("MOLIVE_MAVEN_ACCESS_KEY")
-                secretKey = "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" // System.getenv("MOLIVE_MAVEN_PRIVATE_KEY")
-            }
+            url = URI("https://micka-maven-repo.s3.amazonaws.com/")
         }
     }
 }
