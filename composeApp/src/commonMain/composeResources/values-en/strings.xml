@@ -14,8 +14,10 @@
     <string name="home_title_1">What do we add </string>
     <string name="home_title_2">today ?</string>
     <string name="common_expired_at">Expire on: </string>
-    <string name="notification_title">Warning !</string>
-    <string name="notification_title_description"> will soon expire. Time to cook this delicious dish !</string>
+    <string name="notification_title_1">Bibidi takes care of your food!!</string>
+    <string name="notification_title_2">Bibidi: ready to help you!</string>
+    <string name="notification_title_3">Bibidi: time to enjoyed!</string>
+    <string name="notification_title_description">%1$s will soon expire. Time to cook this delicious dish !</string>
     <string name="fridge_title_1">Your </string>
     <string name="fridge_title_2">fridge</string>
     <string name="home_bottom_text_scan_barcode">Scan bar code</string>

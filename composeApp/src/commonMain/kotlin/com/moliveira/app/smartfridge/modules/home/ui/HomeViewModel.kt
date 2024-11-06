@@ -2,11 +2,10 @@ package com.moliveira.app.smartfridge.modules.home.ui
 
 import com.moliveira.app.smartfridge.Res
 import com.moliveira.app.smartfridge.modules.food.FoodRepository
-import com.moliveira.app.smartfridge.modules.food.database.FoodDatabase
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
+import com.moliveira.app.smartfridge.modules.notification.notificationGetTitle
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
-import com.moliveira.app.smartfridge.notification_title
 import com.moliveira.app.smartfridge.notification_title_description
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +83,7 @@ class HomeViewModel(
                     return@launch
                 }
             notificationService.scheduleNotification(
-                title = getString(Res.string.notification_title),
+                title = notificationGetTitle(),
                 body = getString(
                     Res.string.notification_title_description,
                     productFoundState.foodModel.name

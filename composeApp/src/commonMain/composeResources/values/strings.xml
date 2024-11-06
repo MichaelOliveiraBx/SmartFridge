@@ -14,8 +14,10 @@
     <string name="home_title_1">Qu'est ce qu'on ajoute</string>
     <string name="home_title_2">aujourd'hui ?</string>
     <string name="common_expired_at">Expire le: </string>
-    <string name="notification_title">Attention !</string>
-    <string name="notification_title_description"> va bientôt périmer. Il est temps de cuisinier cette petite merveille !</string>
+    <string name="notification_title_1">Bibidi veille sur ton frigo!</string>
+    <string name="notification_title_2">Bibidi: prêt a vous aider!</string>
+    <string name="notification_title_3">Bibidi: prêt a être dégusté!</string>
+    <string name="notification_title_description">%1$s va bientôt périmer. Il est temps de déguster cette petite merveille !</string>
     <string name="fridge_title_1">Votre </string>
     <string name="fridge_title_2">frigo</string>
     <string name="home_bottom_text_scan_barcode">Scan le code-barre</string>

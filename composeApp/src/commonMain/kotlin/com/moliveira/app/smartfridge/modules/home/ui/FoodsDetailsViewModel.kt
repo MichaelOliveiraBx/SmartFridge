@@ -8,9 +8,9 @@ import com.moliveira.app.smartfridge.modules.food.domain.UserFoodModel
 import com.moliveira.app.smartfridge.modules.food.domain.UserNotificationModel
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
+import com.moliveira.app.smartfridge.modules.notification.notificationGetTitle
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
 import com.moliveira.app.smartfridge.more_late
-import com.moliveira.app.smartfridge.notification_title
 import com.moliveira.app.smartfridge.notification_title_description
 import com.moliveira.app.smartfridge.this_month
 import com.moliveira.app.smartfridge.this_week
@@ -142,7 +142,7 @@ class FoodsDetailsViewModel(
                 product.expirationDate.handleNotificationTime()
                     ?.let {
                         notificationService.scheduleNotification(
-                            title = getString(Res.string.notification_title),
+                            title = notificationGetTitle(),
                             body = getString(
                                 Res.string.notification_title_description,
                                 product.name

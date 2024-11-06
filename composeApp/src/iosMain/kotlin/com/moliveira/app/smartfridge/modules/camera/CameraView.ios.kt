@@ -1,7 +1,10 @@
 package com.moliveira.app.smartfridge.modules.camera
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import kotlinx.cinterop.ExperimentalForeignApi
 
 
@@ -12,11 +15,6 @@ actual fun CameraViewPlatform(
     onTextRecognized: (String) -> Unit,
     onBarcodeRecognized: (String) -> Unit,
 ) {
-//    Box(
-//        modifier = modifier.background(
-//            color = Color.LightGray
-//        ),
-//    )
     CameraViewPlatformNative(
         modifier = modifier,
         onTextRecognized = onTextRecognized,

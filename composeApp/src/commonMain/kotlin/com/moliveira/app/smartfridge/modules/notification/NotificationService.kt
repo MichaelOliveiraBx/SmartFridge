@@ -1,6 +1,10 @@
 package com.moliveira.app.smartfridge.modules.notification
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.moliveira.app.smartfridge.Res
+import com.moliveira.app.smartfridge.notification_title_1
+import com.moliveira.app.smartfridge.notification_title_2
+import com.moliveira.app.smartfridge.notification_title_3
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
@@ -9,9 +13,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.getString
+import kotlin.random.Random
 
 interface NotificationService {
     suspend fun scheduleNotification(
@@ -25,6 +30,14 @@ interface NotificationService {
 
     suspend fun askForPermission(): Boolean
 }
+
+suspend fun notificationGetTitle() = getString(
+    when (Random.nextInt(2)) {
+        0 -> Res.string.notification_title_1
+        1 -> Res.string.notification_title_2
+        else -> Res.string.notification_title_3
+    }
+)
 
 expect class NotificationServicePlatform constructor() : NotificationService
 
