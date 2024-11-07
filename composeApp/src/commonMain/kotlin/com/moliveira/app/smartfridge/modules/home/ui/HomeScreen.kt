@@ -3,6 +3,7 @@ package com.moliveira.app.smartfridge.modules.home.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -42,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -159,11 +161,11 @@ fun HomeScreen(
 
     val state by viewModel.uiStateFlow.collectAsStateWithLifecycle()
     val bottomMessage = remember { mutableStateOf<String?>(null) }
-    var addedAnimationModel by remember { mutableStateOf<String?>(null) }
+    val addedAnimationModel = remember { mutableStateOf<String?>(null) }
     viewModel.ObserveUiEffect {
         when (it) {
             is HomeUiEffect.DisplayMessage -> bottomMessage.value = it.message
-            is HomeUiEffect.StartAddAnimation -> addedAnimationModel = it.icon
+            is HomeUiEffect.StartAddAnimation -> addedAnimationModel.value = it.icon
         }
     }
 
@@ -176,67 +178,16 @@ fun HomeScreen(
     val scaleButtonAnimatable = remember { Animatable(1f) }
     val alphaIconAnimatable = remember { Animatable(0f) }
 
-    LaunchedEffect(key1 = addedAnimationModel) {
-        if (addedAnimationModel != null) {
-            val iconPosition = bannerIconPosition ?: return@LaunchedEffect
-            val pposition = parentPosition ?: return@LaunchedEffect
-            val buttonPosition = detailButtonPosition ?: return@LaunchedEffect
-            val offset = pposition.localPositionOf(
-                iconPosition,
-                Offset.Zero,
-            )
-
-            val buttonOffset = pposition.localPositionOf(
-                buttonPosition,
-
-                Offset(
-                    x = -with(density) { 24.dp.toPx() },
-                    y = -with(density) { 24.dp.toPx() },
-                ),
-            )
-
-            animatableXOffset.snapTo(offset.x)
-            animatableYOffset.snapTo(offset.y)
-            alphaIconAnimatable.snapTo(1f)
-
-            listOf(
-                async {
-                    animatableXOffset.animateTo(
-                        buttonOffset.x,
-                        tween(
-                            durationMillis = 1000,
-                            easing = CubicBezierEasing(
-                                0f, .67f, .37f, 1.03f
-                            )
-                        ),
-                    )
-                },
-                async {
-                    animatableYOffset.animateTo(
-                        buttonOffset.y,
-                        tween(
-                            durationMillis = 1000,
-                            easing = FastOutSlowInEasing,
-                        ),
-                    )
-                },
-                async {
-                    alphaIconAnimatable.animateTo(
-                        0f,
-                        tween(
-                            delayMillis = 600,
-                            durationMillis = 200,
-                            easing = LinearEasing,
-                        ),
-                    )
-                },
-            ).awaitAll()
-
-            scaleButtonAnimatable.animateTo(1.4f, tween(200))
-            scaleButtonAnimatable.animateTo(1f, tween(200))
-            addedAnimationModel = null
-        }
-    }
+    HandleAnimation(
+        addedAnimationModel = addedAnimationModel,
+        bannerIconPosition = bannerIconPosition,
+        parentPosition = parentPosition,
+        detailButtonPosition = detailButtonPosition,
+        animatableXOffset = animatableXOffset,
+        animatableYOffset = animatableYOffset,
+        alphaIconAnimatable = alphaIconAnimatable,
+        scaleButtonAnimatable = scaleButtonAnimatable,
+    )
 
     Box(
         modifier = Modifier
@@ -252,7 +203,7 @@ fun HomeScreen(
             onBannerIconPositioned = { bannerIconPosition = it },
         )
 
-        addedAnimationModel?.let {
+        addedAnimationModel.value?.let {
             AsyncImage(
                 modifier = Modifier
                     .align(TopStart)
@@ -575,115 +526,81 @@ fun HomeScreenProductBanner(
     }
 }
 
+@Composable
+private fun HandleAnimation(
+    addedAnimationModel: MutableState<String?>,
+    bannerIconPosition: LayoutCoordinates?,
+    parentPosition: LayoutCoordinates?,
+    detailButtonPosition: LayoutCoordinates?,
+    animatableXOffset: Animatable<Float, AnimationVector1D>,
+    animatableYOffset: Animatable<Float, AnimationVector1D>,
+    alphaIconAnimatable: Animatable<Float, AnimationVector1D>,
+    scaleButtonAnimatable: Animatable<Float, AnimationVector1D>,
+) {
+    val density = LocalDensity.current
+    LaunchedEffect(key1 = addedAnimationModel.value) {
+        if (addedAnimationModel.value != null) {
+            val iconPosition = bannerIconPosition ?: return@LaunchedEffect
+            val pposition = parentPosition ?: return@LaunchedEffect
+            val buttonPosition = detailButtonPosition ?: return@LaunchedEffect
+            val offset = pposition.localPositionOf(
+                iconPosition,
+                Offset.Zero,
+            )
+
+            val buttonOffset = pposition.localPositionOf(
+                buttonPosition,
+
+                Offset(
+                    x = -with(density) { 24.dp.toPx() },
+                    y = -with(density) { 24.dp.toPx() },
+                ),
+            )
+
+            animatableXOffset.snapTo(offset.x)
+            animatableYOffset.snapTo(offset.y)
+            alphaIconAnimatable.snapTo(1f)
+
+            listOf(
+                async {
+                    animatableXOffset.animateTo(
+                        buttonOffset.x,
+                        tween(
+                            durationMillis = 1000,
+                            easing = CubicBezierEasing(
+                                0f, .67f, .37f, 1.03f
+                            )
+                        ),
+                    )
+                },
+                async {
+                    animatableYOffset.animateTo(
+                        buttonOffset.y,
+                        tween(
+                            durationMillis = 1000,
+                            easing = FastOutSlowInEasing,
+                        ),
+                    )
+                },
+                async {
+                    alphaIconAnimatable.animateTo(
+                        0f,
+                        tween(
+                            delayMillis = 600,
+                            durationMillis = 200,
+                            easing = LinearEasing,
+                        ),
+                    )
+                },
+            ).awaitAll()
+
+            scaleButtonAnimatable.animateTo(1.4f, tween(200))
+            scaleButtonAnimatable.animateTo(1f, tween(200))
+            addedAnimationModel.value = null
+        }
+    }
+}
+
 fun String?.minForPlaceholder(
     size: Int,
 ) = this ?: "a".repeat(size)
-
-
-class DpOffsetAnimationDataToVector(
-    private val density: Density,
-) : TwoWayConverter<DpOffset, AnimationVector2D> {
-    override val convertFromVector: (AnimationVector2D) -> DpOffset = {
-        with(density) {
-            DpOffset(
-                x = it.v1.toDp(),
-                y = it.v2.toDp(),
-            )
-        }
-    }
-
-    override val convertToVector: (DpOffset) -> AnimationVector2D = {
-        with(density) {
-            AnimationVector2D(
-                v1 = it.x.toPx(),
-                v2 = it.y.toPx(),
-            )
-        }
-    }
-}
-
-data class DpYOffsetAlpha(
-    val offset: Dp,
-    val alpha: Float,
-)
-
-class DpYOffsetAlphaAnimationDataToVector(
-    private val density: Density,
-) : TwoWayConverter<DpYOffsetAlpha, AnimationVector2D> {
-    override val convertFromVector: (AnimationVector2D) -> DpYOffsetAlpha = {
-        with(density) {
-            DpYOffsetAlpha(
-                offset = it.v1.toDp(),
-                alpha = it.v2,
-            )
-        }
-    }
-
-    override val convertToVector: (DpYOffsetAlpha) -> AnimationVector2D = {
-        with(density) {
-            AnimationVector2D(
-                v1 = it.offset.toPx(),
-                v2 = it.alpha,
-            )
-        }
-    }
-}
-
-object OffsetAnimationDataToVector : TwoWayConverter<Offset, AnimationVector2D> {
-    override val convertFromVector: (AnimationVector2D) -> Offset = {
-        Offset(
-            x = it.v1,
-            y = it.v2,
-        )
-    }
-
-    override val convertToVector: (Offset) -> AnimationVector2D = {
-        AnimationVector2D(
-            v1 = it.x,
-            v2 = it.y,
-        )
-    }
-}
-
-@Composable
-internal inline fun animatableDpOffset(
-    initialValue: DpYOffsetAlpha = DpYOffsetAlpha(0.dp, 1f),
-    label: String = "DpYOffsetAlpha",
-): Animatable<DpYOffsetAlpha, AnimationVector2D> {
-    val density = LocalDensity.current
-    return remember {
-        Animatable(
-            initialValue = initialValue,
-            typeConverter = DpYOffsetAlphaAnimationDataToVector(density),
-            label = label,
-        )
-    }
-}
-
-
-@Composable
-internal inline fun animatableDpOffsetAlpha(
-    initialValue: DpOffset = DpOffset.Zero,
-    label: String = "DpOffsetAnimation",
-): Animatable<DpOffset, AnimationVector2D> {
-    val density = LocalDensity.current
-    return remember {
-        Animatable(
-            initialValue = initialValue,
-            typeConverter = DpOffsetAnimationDataToVector(density),
-            label = label,
-        )
-    }
-}
-
-@Composable
-internal inline fun animatableOffset(
-    initialValue: Offset = Offset.Zero,
-    label: String = "OffsetAnimation",
-): Animatable<Offset, AnimationVector2D> = remember {
-    Animatable(
-        initialValue = initialValue,
-        typeConverter = OffsetAnimationDataToVector,
-        label = label,
-    )
-}
