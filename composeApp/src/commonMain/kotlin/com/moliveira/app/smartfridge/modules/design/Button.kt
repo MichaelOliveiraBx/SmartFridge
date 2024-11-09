@@ -3,6 +3,7 @@ package com.moliveira.app.smartfridge.modules.design
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,44 @@ import com.moliveira.app.smartfridge.modules.theme.SFColors
 enum class ButtonType {
     PRIMARY,
     SECONDARY
+}
+
+@Composable
+fun Button(
+    modifier: Modifier = Modifier,
+    text: String,
+    type: ButtonType,
+    enable: Boolean = true,
+    paddingValues: PaddingValues,
+    onClick: () -> Unit,
+) {
+    val alphaAnimated by animateFloatAsState(if (enable) 1f else 0.5f)
+    androidx.compose.material3.Button(
+        modifier = modifier.alpha(alphaAnimated),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = type.backgroundColor(),
+            contentColor = type.textColor(),
+        ),
+        shape = RoundedCornerShape(12.dp),
+        onClick = onClick,
+        enabled = enable,
+        contentPadding = paddingValues,
+        border = BorderStroke(1.dp, type.borderColor())
+    ) {
+        Box(
+            modifier = Modifier,
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                modifier = Modifier,
+                text = text,
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            )
+        }
+    }
 }
 
 @Composable

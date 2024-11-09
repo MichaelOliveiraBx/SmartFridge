@@ -28,6 +28,7 @@ mokoResources = "0.24.2"
 crashKios = "0.8.6"
 dataStore = "1.1.1"
 junitJupiter = "5.8.1"
+datePicker = "1.0.6"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -81,6 +82,8 @@ crashKios-core = { group = "co.touchlab.crashkios", name = "core", version.ref =
 
 dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "dataStore" }
 dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
+
+datePicker = { group = "network.chaintech", name = "kmp-date-time-picker", version.ref = "datePicker" }
 
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }

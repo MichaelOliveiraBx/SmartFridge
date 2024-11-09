@@ -4,13 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.TwoWayConverter
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,6 +34,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -66,9 +63,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -77,7 +71,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import com.molive.sdk.extensions.BiasAlignmentExt
-import com.molive.sdk.loading.minForPlaceholder
 import com.molive.sdk.loading.placeholder
 import com.molive.sdk.text.OutlinedText
 import com.molive.sdk.text.OutlinedTextStyle
@@ -88,6 +81,7 @@ import com.moliveira.app.smartfridge.cta_cancel
 import com.moliveira.app.smartfridge.home_title_1
 import com.moliveira.app.smartfridge.home_title_2
 import com.moliveira.app.smartfridge.modules.camera.CameraView
+import com.moliveira.app.smartfridge.modules.date.DatePicker
 import com.moliveira.app.smartfridge.modules.design.Button
 import com.moliveira.app.smartfridge.modules.design.ButtonType
 import com.moliveira.app.smartfridge.modules.design.ColorsTheme
@@ -96,7 +90,6 @@ import com.moliveira.app.smartfridge.modules.sdk.ObserveUiEffect
 import com.moliveira.app.smartfridge.modules.theme.SFColors
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
@@ -151,6 +144,10 @@ sealed class HomeUiEffect {
     data class StartAddAnimation(
         val icon: String,
     ) : HomeUiEffect()
+
+    data class DisplayDatePicker(
+        val startingDate: LocalDate,
+    ) : HomeUiEffect()
 }
 
 @Composable
@@ -162,10 +159,12 @@ fun HomeScreen(
     val state by viewModel.uiStateFlow.collectAsStateWithLifecycle()
     val bottomMessage = remember { mutableStateOf<String?>(null) }
     val addedAnimationModel = remember { mutableStateOf<String?>(null) }
+    var showDatePicker by remember { mutableStateOf<LocalDate?>(null) }
     viewModel.ObserveUiEffect {
         when (it) {
             is HomeUiEffect.DisplayMessage -> bottomMessage.value = it.message
             is HomeUiEffect.StartAddAnimation -> addedAnimationModel.value = it.icon
+            is HomeUiEffect.DisplayDatePicker -> showDatePicker = it.startingDate
         }
     }
 
@@ -190,9 +189,7 @@ fun HomeScreen(
     )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned { parentPosition = it },
+        modifier = Modifier.fillMaxSize().onGloballyPositioned { parentPosition = it },
     ) {
         HomeScreenContent(
             state = state,
@@ -201,19 +198,15 @@ fun HomeScreen(
             onAddProduct = viewModel::onAddProduct,
             onDeleteProduct = viewModel::onDeleteProduct,
             onBannerIconPositioned = { bannerIconPosition = it },
+            onExpireDateClick = viewModel::onExpireDateClick,
         )
 
         addedAnimationModel.value?.let {
             AsyncImage(
-                modifier = Modifier
-                    .align(TopStart)
-                    .offset(
-                        x = with(density) { animatableXOffset.value.toDp() },
-                        y = with(density) { animatableYOffset.value.toDp() },
-                    )
-                    .alpha(alphaIconAnimatable.value)
-                    .clip(RoundedCornerShape(8.dp))
-                    .size(64.dp),
+                modifier = Modifier.align(TopStart).offset(
+                    x = with(density) { animatableXOffset.value.toDp() },
+                    y = with(density) { animatableYOffset.value.toDp() },
+                ).alpha(alphaIconAnimatable.value).clip(RoundedCornerShape(8.dp)).size(64.dp),
                 model = it,
                 contentDescription = null,
             )
@@ -250,8 +243,7 @@ fun HomeScreen(
                     }
                 }
                 OutlinedText(
-                    modifier = Modifier
-                        .offset(y = with(density) { offsetYAnimate.value.toDp() })
+                    modifier = Modifier.offset(y = with(density) { offsetYAnimate.value.toDp() })
                         .alpha(alphaAnimate.value),
                     text = it,
                     style = OutlinedTextStyle(
@@ -268,15 +260,12 @@ fun HomeScreen(
         }
 
         androidx.compose.material3.Button(
-            modifier = Modifier
-                .size(48.dp)
-                .align(
-                    alignment = BiasAlignment(
-                        horizontalBias = 0.9f,
-                        verticalBias = 0.9f,
-                    ),
-                )
-                .scale(scaleButtonAnimatable.value)
+            modifier = Modifier.size(48.dp).align(
+                alignment = BiasAlignment(
+                    horizontalBias = 0.9f,
+                    verticalBias = 0.9f,
+                ),
+            ).scale(scaleButtonAnimatable.value)
                 .onGloballyPositioned { detailButtonPosition = it },
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
@@ -290,6 +279,16 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 imageVector = Icons.AutoMirrored.Filled.List,
                 contentDescription = null,
+            )
+        }
+        showDatePicker?.let {
+            DatePicker(
+                date = it,
+                onDateSelected = { date ->
+                    viewModel.onExpireDateSettled(date)
+                    showDatePicker = null
+                },
+                onDismiss = { showDatePicker = null },
             )
         }
     }
@@ -312,38 +311,30 @@ fun HomeScreenContent(
     onBarcodeRecognized: (String) -> Unit = {},
     onAddProduct: () -> Unit = {},
     onDeleteProduct: () -> Unit = {},
+    onExpireDateClick: () -> Unit = {},
 ) {
-    val topInsetPadding = WindowInsets.statusBars
-        .asPaddingValues()
-        .calculateTopPadding()
+    val topInsetPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                SFColors.primary._300,
-            )
+        modifier = Modifier.fillMaxSize().background(
+            SFColors.primary._300,
+        )
     ) {
         Column {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp)
-                    .padding(top = topInsetPadding),
+                modifier = Modifier.fillMaxWidth().height(160.dp).padding(top = topInsetPadding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(Res.string.home_title_1),
-                    style = TextStyle(
+                    text = stringResource(Res.string.home_title_1), style = TextStyle(
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center,
                     )
                 )
                 Text(
-                    text = stringResource(Res.string.home_title_2),
-                    style = TextStyle(
+                    text = stringResource(Res.string.home_title_2), style = TextStyle(
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center,
@@ -353,11 +344,8 @@ fun HomeScreenContent(
             }
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                    .background(
+                modifier = Modifier.fillMaxWidth().weight(1f)
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)).background(
                         color = ColorsTheme.colors.backgroundColor,
                     ),
                 contentAlignment = Center,
@@ -369,10 +357,8 @@ fun HomeScreenContent(
                 )
 
                 this@Column.FadeAnimatable(
-                    modifier = Modifier
-                        .align(BiasAlignmentExt.horizontalCenter(-1f))
-                        .padding(horizontal = 20.dp)
-                        .padding(top = 20.dp),
+                    modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(-1f))
+                        .padding(horizontal = 20.dp).padding(top = 20.dp),
                     value = state.productBanner,
                 ) {
                     HomeScreenProductBanner(
@@ -380,13 +366,14 @@ fun HomeScreenContent(
                         onBannerIconPositioned = onBannerIconPositioned,
                         onAddProduct = onAddProduct,
                         onDeleteProduct = onDeleteProduct,
+                        onExpireDateClick = onExpireDateClick,
                     )
                 }
             }
         }
 
         Crossfade(
-            modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(0.7f)),
+            modifier = Modifier.align(BiasAlignmentExt.horizontalCenter(-0.19f)),
             targetState = state.bottomBannerText,
         ) {
             if (it != null) {
@@ -429,28 +416,23 @@ fun HomeScreenProductBanner(
     onBannerIconPositioned: (LayoutCoordinates) -> Unit = {},
     onAddProduct: () -> Unit = {},
     onDeleteProduct: () -> Unit = {},
+    onExpireDateClick: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier
-            .background(
-                color = SFColors.primary._100,
-                shape = RoundedCornerShape(16.dp),
-            )
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = modifier.background(
+            color = SFColors.primary._100,
+            shape = RoundedCornerShape(16.dp),
+        ).padding(vertical = 8.dp, horizontal = 8.dp),
     ) {
         Row(
             modifier = Modifier,
             verticalAlignment = CenterVertically,
         ) {
             AsyncImage(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .size(64.dp)
-                    .placeholder(
-                        enable = state.thumbnail == null,
-                        shape = RoundedCornerShape(8.dp),
-                    )
-                    .onGloballyPositioned(onBannerIconPositioned),
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).size(64.dp).placeholder(
+                    enable = state.thumbnail == null,
+                    shape = RoundedCornerShape(8.dp),
+                ).onGloballyPositioned(onBannerIconPositioned),
                 model = state.thumbnail,
                 contentDescription = null,
             )
@@ -473,8 +455,10 @@ fun HomeScreenProductBanner(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = CenterVertically,
+                ) {
                     Text(
                         text = stringResource(Res.string.common_expired_at),
                         style = TextStyle(
@@ -482,18 +466,34 @@ fun HomeScreenProductBanner(
                             color = SFColors.secondary._500,
                         ),
                     )
-                    Text(
-                        modifier = Modifier.placeholder(
-                            enable = state.expirationDate == null,
-                            color = Color.LightGray,
-                            shimmerColor = Color.White,
-                        ),
-                        text = state.expirationDate.minForPlaceholder(size = 10),
-                        style = TextStyle(
-                            fontSize = 13.sp,
-                            color = SFColors.secondary._500,
-                            fontWeight = FontWeight.Bold,
-                        ),
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(color = Color.White)
+                            .clickable { onExpireDateClick() }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    ) {
+                        Text(
+                            modifier = Modifier.placeholder(
+                                enable = state.expirationDate == null,
+                                color = Color.LightGray,
+                                shimmerColor = Color.White,
+                            ),
+                            text = state.expirationDate.minForPlaceholder(size = 10),
+                            style = TextStyle(
+                                fontSize = 13.sp,
+                                color = SFColors.secondary._500,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        modifier = Modifier.size(16.dp),
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = SFColors.secondary._500,
                     )
                 }
             }
@@ -503,18 +503,14 @@ fun HomeScreenProductBanner(
             modifier = Modifier.height(36.dp).fillMaxWidth(),
         ) {
             Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 text = stringResource(Res.string.cta_cancel),
                 type = ButtonType.SECONDARY,
                 onClick = onDeleteProduct,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 text = stringResource(Res.string.cta_add),
                 type = ButtonType.PRIMARY,
                 onClick = onAddProduct,
@@ -566,8 +562,7 @@ private fun HandleAnimation(
                     animatableXOffset.animateTo(
                         buttonOffset.x,
                         tween(
-                            durationMillis = 1000,
-                            easing = CubicBezierEasing(
+                            durationMillis = 1000, easing = CubicBezierEasing(
                                 0f, .67f, .37f, 1.03f
                             )
                         ),

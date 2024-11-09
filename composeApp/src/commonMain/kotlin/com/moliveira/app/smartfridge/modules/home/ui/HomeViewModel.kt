@@ -2,10 +2,12 @@ package com.moliveira.app.smartfridge.modules.home.ui
 
 import com.moliveira.app.smartfridge.Res
 import com.moliveira.app.smartfridge.modules.food.FoodRepository
+import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
 import com.moliveira.app.smartfridge.modules.notification.notificationGetTitle
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
+import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
 import com.moliveira.app.smartfridge.notification_title_description
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.getString
 
 class HomeViewModel(
@@ -64,6 +70,28 @@ class HomeViewModel(
                     date = it,
                 )
             }
+        }
+    }
+
+    fun onExpireDateClick() {
+        val localDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        sendUiEffectAsync(
+            HomeUiEffect.DisplayDatePicker(localDate)
+        )
+    }
+
+    fun onExpireDateSettled(date: LocalDate) {
+        viewModelScope.launch {
+            val foodModel = when (val state = internalStateFlow.value) {
+                is HomeInternalState.ProductFound -> state.foodModel
+                is HomeInternalState.DateSettled -> state.foodModel
+                else -> return@launch
+            }
+
+            internalStateFlow.value = HomeInternalState.DateSettled(
+                foodModel = foodModel,
+                date = date,
+            )
         }
     }
 

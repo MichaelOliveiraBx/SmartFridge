@@ -25,11 +25,12 @@
     <string name="home_bottom_text_scan_ready">C'est prêt !</string>
     <string name="common_delete">Supprimer</string>
     <string name="dialog_delete_description">Es tu sûr de vouloir le supprimer ton frigo ?</string>
-    <string name="by_date_added">Ajouter le</string>
+    <string name="by_date_added">Ajouté le</string>
     <string name="by_date_expired">Expire le</string>
     <string name="this_week">Cette semaine</string>
     <string name="this_month">Ce mois</string>
     <string name="this_year">Cette année</string>
     <string name="common_expired">Expirés</string>
     <string name="more_late">Plus tard</string>
+    <string name="common_validate">Valider</string>
 </resources>

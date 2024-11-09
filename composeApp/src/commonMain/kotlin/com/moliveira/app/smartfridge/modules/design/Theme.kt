@@ -4,7 +4,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -44,10 +43,10 @@ object ColorsThemeMode {
         primaryColor = Color(0xFF63C0AE),
         textOnBackground = Color(0xFF63C0AE),
         textOnPrimary = Color.White,
-        buttonPrimary = Color(0xFF63C0AE),
+        buttonPrimary = SFColors.secondary._500,
         buttonSecondary = Color.White,
         buttonTextPrimary = Color.White,
-        buttonTextSecondary = Color(0xFF63C0AE),
+        buttonTextSecondary = SFColors.secondary._500,
     )
 }
 
@@ -63,30 +62,36 @@ val LocalColors = staticCompositionLocalOf {
 }
 
 @Composable
-private fun typography() = Typography(
+private fun typography() = MaterialTheme.typography.copy(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        color = ColorsTheme.colors.textOnBackground,
+        color = SFColors.secondary._500,
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        color = ColorsTheme.colors.textOnBackground,
+        color = SFColors.secondary._500,
     ),
     titleMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
-        color = ColorsTheme.colors.primaryColor,
+        color = SFColors.secondary._500,
     ),
     titleSmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
-        color = ColorsTheme.colors.primaryColor,
+        color = SFColors.secondary._500,
+    ),
+    headlineLarge = MaterialTheme.typography.headlineLarge.copy(
+        color = SFColors.secondary._500,
+    ),
+    headlineMedium = MaterialTheme.typography.headlineMedium.copy(
+        color = SFColors.secondary._500,
     ),
 )
 
@@ -106,7 +111,11 @@ fun AppTheme(
                 small = RoundedCornerShape(12.dp),
                 medium = RoundedCornerShape(16.dp),
             ),
-            content = content
+            colorScheme = MaterialTheme.colorScheme.copy(
+                onSurface = SFColors.primary._300,
+                onSurfaceVariant = SFColors.primary._300,
+            ),
+            content = content,
         )
     }
 }
