@@ -8,6 +8,7 @@ import com.moliveira.app.smartfridge.modules.notification.handleNotificationTime
 import com.moliveira.app.smartfridge.modules.notification.notificationGetTitle
 import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
 import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
+import com.moliveira.app.smartfridge.modules.sdk.localizedString
 import com.moliveira.app.smartfridge.notification_title_description
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
@@ -114,7 +115,7 @@ class HomeViewModel(
                 title = notificationGetTitle(),
                 body = getString(
                     Res.string.notification_title_description,
-                    productFoundState.foodModel.name
+                    productFoundState.foodModel.name.localizedString(),
                 ),
                 icon = null,
                 localDateTime = notificationTime,
