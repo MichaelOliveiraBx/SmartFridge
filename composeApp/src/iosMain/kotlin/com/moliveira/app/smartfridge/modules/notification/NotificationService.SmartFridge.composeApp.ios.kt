@@ -18,7 +18,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-actual class NotificationServicePlatform : NotificationService {
+class NotificationServicePlatform : NotificationService {
     override suspend fun scheduleNotification(
         title: String,
         body: String?,

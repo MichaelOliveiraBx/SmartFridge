@@ -50,6 +50,11 @@ abstract class BaseScreenModel<S : Any, E : Any>(initialState: S) : ViewModel() 
         _uiEffects.emit(effect)
     }
 
+    override fun onCleared() {
+        viewModelScope.cancel()
+        super.onCleared()
+    }
+
 //    override fun onDispose() {
 //        viewModelScope.cancel()
 //        super.onDispose()

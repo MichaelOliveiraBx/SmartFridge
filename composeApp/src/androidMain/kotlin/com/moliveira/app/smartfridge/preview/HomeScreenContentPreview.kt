@@ -2,13 +2,13 @@ package com.moliveira.app.smartfridge.preview
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+//import androidx.compose.ui.tooling.preview.Preview
 import com.moliveira.app.smartfridge.modules.design.AppTheme
 import com.moliveira.app.smartfridge.modules.home.ui.HomeProductBannerState
 import com.moliveira.app.smartfridge.modules.home.ui.HomeScreenContent
 import com.moliveira.app.smartfridge.modules.home.ui.HomeState
 
-@Preview
+//@Preview
 @Composable
 fun HomeScreenContentPreview() {
     AppTheme {

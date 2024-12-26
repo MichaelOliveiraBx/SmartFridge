@@ -38,10 +38,16 @@ kotlin {
 
         androidMain.dependencies {
             implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.sqlDelight.android.driver)
             implementation(libs.coil.network.android)
+            implementation(libs.koin.android)
+            implementation(libs.camerax.camera2)
+            implementation(libs.camerax.mlkit.playservices)
+            implementation(libs.camerax.mlkit)
+            implementation(libs.mlkit.text)
+            implementation(libs.mlkit.barcode)
+            implementation(libs.playservice.coroutine)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -120,9 +126,9 @@ android {
     buildFeatures {
         compose = true
     }
-    dependencies {
-        debugImplementation(compose.uiTooling)
-    }
+//    dependencies {
+//        debugImplementation(compose.uiTooling)
+//    }
 }
 
 sqldelight {

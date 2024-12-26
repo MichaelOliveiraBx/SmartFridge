@@ -3,7 +3,6 @@ package com.moliveira.app.smartfridge.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.moliveira.app.smartfridge.MainActivity
 import com.moliveira.app.smartfridge.notification.utils.Constants
 import io.github.aakira.napier.Napier
@@ -28,7 +27,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         ?: throw IllegalStateException()
                 }
                     .mapCatching { notification ->
-                        Napier.d("notification:$notification")
+                        io.github.aakira.napier.Napier.d("notification:$notification")
                         val intentCreated = Intent(
                             appContext,
                             MainActivity::class.java

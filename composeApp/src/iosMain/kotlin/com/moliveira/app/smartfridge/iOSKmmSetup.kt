@@ -3,6 +3,8 @@ package com.moliveira.app.smartfridge
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.database.cache.IOSDatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.camera.KMMCameraRecognizerInterface
+import com.moliveira.app.smartfridge.modules.notification.NotificationService
+import com.moliveira.app.smartfridge.modules.notification.NotificationServicePlatform
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilder
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilderPlatform
 import io.github.aakira.napier.DebugAntilog
@@ -15,6 +17,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import platform.Foundation.NSSetUncaughtExceptionHandler
+import platform.posix.bind
 
 object IOSKmmSetup {
     fun setup() {
@@ -46,4 +49,5 @@ private fun platformModules() = module {
     singleOf(::IOSDatabaseDriverFactory) { bind<DatabaseDriverFactory>() }
     singleOf(::KMMCameraRecognizerInterface)
     factoryOf(::DataStoreBuilderPlatform) { bind<DataStoreBuilder>() }
+    singleOf(::NotificationServicePlatform) { bind<NotificationService>() }
 }

@@ -42,13 +42,15 @@ fun SwipeableBox(
     val positionalThresholds: (totalDistance: Float) -> Float =
         { totalDistance -> totalDistance * 0.5f }
     val velocityThreshold: () -> Float = { with(density) { 100.dp.toPx() } }
+    val decay = rememberSplineBasedDecay<Float>()
 
     val state = remember(isEnable) {
         AnchoredDraggableState(
             initialValue = DragAnchors.Start,
-            positionalThresholds,
-            velocityThreshold,
-            animationSpec = tween(),
+            positionalThreshold = positionalThresholds,
+            velocityThreshold = velocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = decay,
             confirmValueChange = {
                 if (it == DragAnchors.End && isEnable) onTriggered()
                 false

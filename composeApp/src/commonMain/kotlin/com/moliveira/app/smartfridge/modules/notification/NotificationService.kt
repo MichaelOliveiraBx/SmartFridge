@@ -39,8 +39,6 @@ suspend fun notificationGetTitle() = getString(
     }
 )
 
-expect class NotificationServicePlatform constructor() : NotificationService
-
 val LocalNotificationService = staticCompositionLocalOf<NotificationService> {
     error("No NotificationService provided")
 }
