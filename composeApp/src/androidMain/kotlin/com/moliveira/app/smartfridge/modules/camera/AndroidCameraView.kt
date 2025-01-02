@@ -1,10 +1,7 @@
 package com.moliveira.app.smartfridge.modules.camera
 
 import android.content.Context
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.annotation.OptIn
-import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -13,11 +10,9 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -40,7 +35,6 @@ fun AndroidCameraView(
     onTextRecognized: (String) -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
 
     val imageCapture = remember {
         ImageCapture
@@ -52,12 +46,6 @@ fun AndroidCameraView(
         modifier = modifier,
         factory = { context ->
             PreviewView(context).apply {
-//                layoutParams =
-//                    LinearLayout.LayoutParams(
-//                        ViewGroup.LayoutParams.MATCH_PARENT,
-//                        ViewGroup.LayoutParams.MATCH_PARENT
-//                    )
-//                scaleType = PreviewView.ScaleType.FILL_START
 
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
                 cameraProviderFuture.addListener({
@@ -103,19 +91,11 @@ private fun startCamera(
     // Types of barcodes
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(
-//            Barcode.FORMAT_QR_CODE,
             Barcode.FORMAT_AZTEC,
-//            Barcode.FORMAT_CODE_128,
-//            Barcode.FORMAT_CODE_39,
-//            Barcode.FORMAT_CODE_93,
             Barcode.FORMAT_EAN_8,
             Barcode.FORMAT_EAN_13,
             Barcode.FORMAT_QR_CODE,
-//            Barcode.FORMAT_UPC_A,
-//            Barcode.FORMAT_UPC_E,
-//            Barcode.FORMAT_PDF417
         )
-//        .enableAllPotentialBarcodes()
         .build()
 
     val scanner = BarcodeScanning.getClient(options)
@@ -166,7 +146,6 @@ private fun processImageProxy(
 
         barcodeScanner.process(inputImage)
             .addOnSuccessListener { barcodeList ->
-                Napier.d("HHHH - BarcCode Success:${barcodeList.size}")
                 barcodeList.forEach(onSuccess)
             }
             .addOnFailureListener {
@@ -175,11 +154,9 @@ private fun processImageProxy(
                 Napier.e(it.message.orEmpty())
             }
             .continueWithTask {
-                Napier.d("HHHH - TextScanner")
                 textScanner.process(inputImage)
             }
             .addOnSuccessListener { texts ->
-                Napier.d("HHHH - texts:${texts.text}")
                 for (block in texts.textBlocks) {
                     for (line in block.lines) {
                         for (element in line.elements) {
@@ -188,7 +165,6 @@ private fun processImageProxy(
                     }
                 }
             }.addOnCompleteListener {
-                Napier.d("HHHH - onComplete")
                 // When the image is from CameraX analysis use case, must
                 // call image.close() on received images when finished
                 // using them. Otherwise, new images may not be received

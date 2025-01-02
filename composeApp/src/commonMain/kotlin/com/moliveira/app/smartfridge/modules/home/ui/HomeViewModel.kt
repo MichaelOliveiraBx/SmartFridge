@@ -18,9 +18,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.getString
+import kotlin.time.Duration.Companion.seconds
 
 class HomeViewModel(
     private val foodRepository: FoodRepository,
@@ -49,6 +51,7 @@ class HomeViewModel(
             internalStateFlow.value = HomeInternalState.ProductInSearch
             foodRepository.getFoodById(text)
                 .onSuccess {
+                    Napier.i("HHHH onBarcodeRecognized: getFoodById success $it")
                     internalStateFlow.value = HomeInternalState.ProductFound(it)
                 }
                 .onFailure {
@@ -100,17 +103,22 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             val productFoundState =
                 (internalStateFlow.value as? HomeInternalState.DateSettled) ?: return@launch
-            Napier.w("onAddProduct: productFoundState:$productFoundState")
-            val notificationTime = productFoundState.date.handleNotificationTime()
-                ?: run {
-                    Napier.w("onAddProduct: notificationTime null")
-                    sendUiEffect(
-                        HomeUiEffect.DisplayMessage(
-                            "Sorry the date is already expired"
-                        )
-                    )
-                    return@launch
-                }
+            Napier.d("onAddProduct: productFoundState:$productFoundState")
+//            val notificationTime = productFoundState.date.handleNotificationTime()
+//                ?: run {
+//                    Napier.w("onAddProduct: notificationTime null")
+//                    sendUiEffect(
+//                        HomeUiEffect.DisplayMessage(
+//                            "Sorry the date is already expired"
+//                        )
+//                    )
+//                    return@launch
+//                }
+            val notificationTime =
+                Clock.System.now()
+                    .plus(30.seconds)
+                    .toLocalDateTime(TimeZone.currentSystemDefault())
+
             notificationService.scheduleNotification(
                 title = notificationGetTitle(),
                 body = getString(

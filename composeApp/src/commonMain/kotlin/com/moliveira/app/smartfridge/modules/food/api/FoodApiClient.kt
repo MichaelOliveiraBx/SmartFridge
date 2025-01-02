@@ -3,6 +3,7 @@ package com.moliveira.app.smartfridge.modules.food.api
 import com.moliveira.app.smartfridge.modules.food.domain.FoodModel
 import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
 import com.moliveira.app.smartfridge.modules.sdk.handle
+import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import kotlinx.serialization.Serializable
@@ -31,13 +32,16 @@ class FoodApiClient(
         httpClient.get("$OPEN_FOOD_FACTS_BASE_URL/$id")
             .handle<FoodModelDto>()
             .map {
+                Napier.i("API getFoodById: $it")
                 FoodModel(
                     id = it.code,
                     name = LocalizedString(
-                        en = it.product.product_name_en ?: it.product.product_name,
-                        fr = it.product.product_name_fr ?: it.product.product_name,
+                        en = it.product.product_name_en.nullOnEmpty() ?: it.product.product_name,
+                        fr = it.product.product_name_fr.nullOnEmpty() ?: it.product.product_name,
                     ),
                     thumbnail = it.product.image_front_small_url,
                 )
             }
 }
+
+fun String?.nullOnEmpty(): String? = if (this.isNullOrEmpty()) null else this

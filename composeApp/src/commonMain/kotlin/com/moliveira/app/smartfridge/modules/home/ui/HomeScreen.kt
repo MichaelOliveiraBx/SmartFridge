@@ -269,8 +269,12 @@ fun HomeScreen(
                 .onGloballyPositioned { detailButtonPosition = it },
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
-                containerColor = SFColors.primary._300,
+                containerColor = SFColors.secondary._500,
                 contentColor = Color.White,
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 0.dp,
             ),
             onClick = goToDetails,
             contentPadding = PaddingValues(8.dp),

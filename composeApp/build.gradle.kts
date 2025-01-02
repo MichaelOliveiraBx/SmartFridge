@@ -67,6 +67,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.negotiation)
             implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.logging)
             implementation(libs.sqlDelight.runtime)
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
