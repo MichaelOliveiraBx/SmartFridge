@@ -27,7 +27,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         ?: throw IllegalStateException()
                 }
                     .mapCatching { notification ->
-                        io.github.aakira.napier.Napier.d("notification:$notification")
+                        Napier.d("notification:$notification")
                         val intentCreated = Intent(
                             appContext,
                             MainActivity::class.java
@@ -36,7 +36,7 @@ class AlarmReceiver : BroadcastReceiver() {
                             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
                         NotificationHelper.createNotification(
-                            context = context,
+                            context = appContext,
                             title = notification.title,
                             message = notification.description,
                             channelId = notification.channelId,

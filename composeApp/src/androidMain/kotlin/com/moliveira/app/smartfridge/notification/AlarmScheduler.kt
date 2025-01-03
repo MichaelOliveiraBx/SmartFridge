@@ -53,11 +53,12 @@ class AlarmScheduler(
     fun scheduleAlarmForReminder(data: NotificationDTO) {
 
         // get the AlarmManager reference
-        NotificationChannelHelper.createNotificationChannel(
-            appContext,
-            NotificationManagerCompat.IMPORTANCE_HIGH, true,
-            channelVisibleName = data.channelVisibleName, channelId = data.channelId
-        )
+//        NotificationChannelHelper.createNotificationChannel(
+//            appContext,
+//            NotificationManagerCompat.IMPORTANCE_HIGH, true,
+//            channelVisibleName = data.channelVisibleName,
+//            channelId = data.channelId
+//        )
         val alarmMgr = appContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // Schedule the alarms based on the days to administer the medicine

@@ -263,10 +263,9 @@ fun HomeScreen(
             modifier = Modifier.size(48.dp).align(
                 alignment = BiasAlignment(
                     horizontalBias = 0.9f,
-                    verticalBias = 0.9f,
+                    verticalBias = 0.86f,
                 ),
-            ).scale(scaleButtonAnimatable.value)
-                .onGloballyPositioned { detailButtonPosition = it },
+            ).scale(scaleButtonAnimatable.value).onGloballyPositioned { detailButtonPosition = it },
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
                 containerColor = SFColors.secondary._500,
@@ -472,10 +471,8 @@ fun HomeScreenProductBanner(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color = Color.White)
-                            .clickable { onExpireDateClick() }
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                            .background(color = Color.White).clickable { onExpireDateClick() }
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
                         Text(

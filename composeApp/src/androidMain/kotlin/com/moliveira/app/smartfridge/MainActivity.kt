@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,8 +18,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import com.moliveira.app.smartfridge.modules.notification.NotificationServicePlatform
+import com.moliveira.app.smartfridge.notification.NotificationHelper
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
@@ -71,7 +76,7 @@ class MainActivity : ComponentActivity() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is not in the Support Library.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Shop channel"
+            val name = "Smart Fridge"
             val descriptionText = "Reminder to claim free coins"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(NOTIF_CHANNEL_ID, name, importance).apply {

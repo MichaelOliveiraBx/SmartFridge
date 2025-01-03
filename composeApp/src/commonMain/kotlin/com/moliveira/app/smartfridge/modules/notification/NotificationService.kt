@@ -50,7 +50,6 @@ fun LocalDate.handleNotificationTime(): LocalDateTime? {
     val minus2Days = minus(DatePeriod(days = 2))
     val minus1Day = minus(DatePeriod(days = 1))
 
-    Napier.d("now: $now minus2Days: $minus2Days minus1Day: $minus1Day")
     return when {
         minus2Days > now -> minus2Days
         minus1Day >= now -> minus1Day

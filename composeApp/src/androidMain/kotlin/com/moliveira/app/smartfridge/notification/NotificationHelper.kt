@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.moliveira.app.smartfridge.R
 
 object NotificationHelper {
 
@@ -19,7 +20,7 @@ object NotificationHelper {
         pendingIntentId: Int,
     ) {
         val notificationBuilder = NotificationCompat.Builder(context, channelId).apply {
-//            setSmallIcon(R.drawable.ic_notification) // 3
+            setSmallIcon(R.drawable.ic_notification) // 3
             setContentTitle(title) // 4
             setContentText(message) // 5
             setGroupSummary(true)
