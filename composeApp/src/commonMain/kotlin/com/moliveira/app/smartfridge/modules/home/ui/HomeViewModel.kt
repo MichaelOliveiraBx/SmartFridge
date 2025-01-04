@@ -104,20 +104,20 @@ class HomeViewModel(
             val productFoundState =
                 (internalStateFlow.value as? HomeInternalState.DateSettled) ?: return@launch
             Napier.d("onAddProduct: productFoundState:$productFoundState")
-//            val notificationTime = productFoundState.date.handleNotificationTime()
-//                ?: run {
-//                    Napier.w("onAddProduct: notificationTime null")
-//                    sendUiEffect(
-//                        HomeUiEffect.DisplayMessage(
-//                            "Sorry the date is already expired"
-//                        )
-//                    )
-//                    return@launch
-//                }
-            val notificationTime =
-                Clock.System.now()
-                    .plus(30.seconds)
-                    .toLocalDateTime(TimeZone.currentSystemDefault())
+            val notificationTime = productFoundState.date.handleNotificationTime()
+                ?: run {
+                    Napier.w("onAddProduct: notificationTime null")
+                    sendUiEffect(
+                        HomeUiEffect.DisplayMessage(
+                            "Sorry the date is already expired"
+                        )
+                    )
+                    return@launch
+                }
+//            val notificationTime =
+//                Clock.System.now()
+//                    .plus(30.seconds)
+//                    .toLocalDateTime(TimeZone.currentSystemDefault())
 
             notificationService.scheduleNotification(
                 title = notificationGetTitle(),

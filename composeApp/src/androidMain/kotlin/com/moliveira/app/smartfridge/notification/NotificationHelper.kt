@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.moliveira.app.smartfridge.R
@@ -21,6 +23,7 @@ object NotificationHelper {
     ) {
         val notificationBuilder = NotificationCompat.Builder(context, channelId).apply {
             setSmallIcon(R.drawable.ic_notification) // 3
+            setColor(Color(0xFF35B0D4).toArgb())
             setContentTitle(title) // 4
             setContentText(message) // 5
             setGroupSummary(true)
