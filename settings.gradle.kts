@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KMMCocoaTest"
+rootProject.name = "Bibidi"
 include(":shared")

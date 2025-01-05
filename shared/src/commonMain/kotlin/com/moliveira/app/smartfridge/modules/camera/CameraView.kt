@@ -36,12 +36,11 @@ fun CameraView(
             )
         }
     } else {
-        Box(modifier)
-//        CameraViewPlatform(
-//            modifier = modifier,
-//            onTextRecognized = onTextRecognized,
-//            onBarcodeRecognized = onBarcodeRecognized,
-//        )
+        CameraViewPlatform(
+            modifier = modifier,
+            onTextRecognized = onTextRecognized,
+            onBarcodeRecognized = onBarcodeRecognized,
+        )
     }
 }
 

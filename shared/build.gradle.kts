@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.mokoResources)
 
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 kotlin {
