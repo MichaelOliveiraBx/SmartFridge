@@ -29,7 +29,7 @@ kotlin {
     cocoapods {
         summary = "Some description for the Shared Module"
         homepage = "Link to the Shared Module homepage"
-        version = "1.0"
+        version = "1.2.2"
         ios.deploymentTarget = "16.0"
         podfile = project.file("../iosApp/Podfile")
         framework {
@@ -41,13 +41,8 @@ kotlin {
             version = libs.versions.purchases.common.get()
             extraOpts += listOf("-compiler-option", "-fmodules")
         }
-
-//        pod("PurchasesHybridCommonUI"){
-//            version = libs.versions.purchases.common.get()
-//            extraOpts += listOf("-compiler-option", "-fmodules")
-//        }
     }
-    
+
     sourceSets {
 
         named { it.lowercase().startsWith("ios") }.configureEach {

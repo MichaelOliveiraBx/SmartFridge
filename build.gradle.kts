@@ -13,36 +13,9 @@ plugins {
     alias(libs.plugins.kotlinxSerialization) apply false
 }
 
-
-tasks.register("archiveForIos") {
-    group = "build"
-    description = "Build and archive iOS framework"
-
-    doLast {
-        // Path to your Xcode workspace or project
-        val xcodeProjectPath = "iosApp/Bibidi.xcodeproj"  // Adjust this to your Xcode project path
-        val xcodeWS = "iosApp/iosApp.xcworkspace"  // Adjust this to your Xcode project path
-        val scheme = "iosApp"  // Replace with your actual scheme name
-        val sdk = "iphoneos"   // SDK for iOS device builds
-
-        exec {
-//            commandLine(
-//                "xcodebuild",
-//                "-workspace", xcodeWS,
-//                "-scheme", scheme,
-//                "-sdk", sdk,
-//                "-configuration", "Release",
-//                "archive",
-//                "-archivePath", "$buildDir/iosArchives/$scheme.xcarchive",
-//            )
-        }
-    }
-}
-
-tasks.register<Exec>("runCommand") {
+tasks.register<Exec>("archiveForIos") {
     group = "build"
 
-    val xcodeProjectPath = "iosApp/Bibidi.xcodeproj"  // Adjust this to your Xcode project path
     val xcodeWS = "iosApp/iosApp.xcworkspace"  // Adjust this to your Xcode project path
     val scheme = "iosApp"  // Replace with your actual scheme name
     val sdk = "iphoneos"   // SDK for iOS device builds
@@ -58,32 +31,19 @@ tasks.register<Exec>("runCommand") {
     )
 }
 
-tasks.register("hello") {
-    doLast {
-        exec {
-        println("Hello world!")
-//            commandLine("ls", "-la")
-        }
-    }
-}
-
-tasks.register("exportIosArchive") {
+tasks.register<Exec>("exportIosArchive") {
     group = "build"
     description = "Export iOS archive to an .ipa file"
 
-    doLast {
-        val archivePath = "$buildDir/iosArchives/iosApp.xcarchive"
-        val exportPath = "$buildDir/iosArchives/Export"
-        val exportOptionsPlist = "iosApp/ExportOptions.plist"  // Path to your export options plist file
+    val archivePath = "$buildDir/iosArchives/iosApp.xcarchive"
+    val exportPath = "$buildDir/iosArchives/Export"
+    val exportOptionsPlist = "iosApp/ExportOptions.plist"  // Path to your export options plist file
 
-        exec {
-            commandLine(
-                "xcodebuild",
-                "-exportArchive",
-                "-archivePath", archivePath,
-                "-exportPath", exportPath,
-                "-exportOptionsPlist", exportOptionsPlist,
-            )
-        }
-    }
+    commandLine(
+        "xcodebuild",
+        "-exportArchive",
+        "-archivePath", archivePath,
+        "-exportPath", exportPath,
+        "-exportOptionsPlist", exportOptionsPlist,
+    )
 }
