@@ -2,7 +2,7 @@ PODS:
   - PurchasesHybridCommon (13.13.1):
     - RevenueCat (= 5.14.0)
   - RevenueCat (5.14.0)
-  - shared (1.0):
+  - shared (1.2.2):
     - PurchasesHybridCommon (= 13.13.1)
 
 DEPENDENCIES:
@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   PurchasesHybridCommon: 9a543fc41928085f7c7b702d36d07ffc2cfa48f7
   RevenueCat: 34f4147c8d26d2f3c691be4e3c9f033698e557f2
-  shared: d09321a025c51d5bafd0739a0632479c09109cd6
+  shared: 442d4f20ae56227e9525dca9984672656a566d8b
 
 PODFILE CHECKSUM: 27afbeef32af406f9c861714c7b30805caeaee2f
 
