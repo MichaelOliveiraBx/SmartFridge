@@ -1,13 +1,15 @@
 plugins {
-    // this is necessary to avoid the plugins to be loaded multiple times
-    // in each subproject's classloader
-    alias(libs.plugins.androidApplication) apply false
-    alias(libs.plugins.androidLibrary) apply false
+    //trick: for the same plugin versions in all sub-modules
+    alias(libs.plugins.androidApplication).apply(false)
+    alias(libs.plugins.androidLibrary).apply(false)
+    alias(libs.plugins.kotlinAndroid).apply(false)
+    alias(libs.plugins.kotlinMultiplatform).apply(false)
+    alias(libs.plugins.kotlinCocoapods).apply(false)
+    alias(libs.plugins.compose.compiler).apply(false)
+
     alias(libs.plugins.jetbrainsCompose) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.mokoResources) apply false
-    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.sqldelight) apply false
 }
 
 
@@ -17,20 +19,49 @@ tasks.register("archiveForIos") {
 
     doLast {
         // Path to your Xcode workspace or project
-        val xcodeProjectPath = "iosApp/iosApp.xcodeproj"  // Adjust this to your Xcode project path
+        val xcodeProjectPath = "iosApp/Bibidi.xcodeproj"  // Adjust this to your Xcode project path
+        val xcodeWS = "iosApp/iosApp.xcworkspace"  // Adjust this to your Xcode project path
         val scheme = "iosApp"  // Replace with your actual scheme name
         val sdk = "iphoneos"   // SDK for iOS device builds
 
         exec {
-            commandLine(
-                "xcodebuild",
-                "-project", xcodeProjectPath,
-                "-scheme", scheme,
-                "-sdk", sdk,
-                "-configuration", "Release",
-                "archive",
-                "-archivePath", "$buildDir/iosArchives/$scheme.xcarchive",
-            )
+//            commandLine(
+//                "xcodebuild",
+//                "-workspace", xcodeWS,
+//                "-scheme", scheme,
+//                "-sdk", sdk,
+//                "-configuration", "Release",
+//                "archive",
+//                "-archivePath", "$buildDir/iosArchives/$scheme.xcarchive",
+//            )
+        }
+    }
+}
+
+tasks.register<Exec>("runCommand") {
+    group = "build"
+
+    val xcodeProjectPath = "iosApp/Bibidi.xcodeproj"  // Adjust this to your Xcode project path
+    val xcodeWS = "iosApp/iosApp.xcworkspace"  // Adjust this to your Xcode project path
+    val scheme = "iosApp"  // Replace with your actual scheme name
+    val sdk = "iphoneos"   // SDK for iOS device builds
+
+    commandLine(
+        "xcodebuild",
+        "-workspace", xcodeWS,
+        "-scheme", scheme,
+        "-sdk", sdk,
+        "-configuration", "Release",
+        "archive",
+        "-archivePath", "$buildDir/iosArchives/$scheme.xcarchive",
+    )
+}
+
+tasks.register("hello") {
+    doLast {
+        exec {
+        println("Hello world!")
+//            commandLine("ls", "-la")
         }
     }
 }

@@ -1,6 +1,6 @@
 import SwiftUI
 import AVFoundation
-import ComposeApp
+import shared
 
 @main
 struct iOSApp: App {

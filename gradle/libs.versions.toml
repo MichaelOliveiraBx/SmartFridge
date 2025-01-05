@@ -1,9 +1,14 @@
 [versions]
-agp = "8.2.2"
+agp = "8.7.2"
+kotlin = "2.0.21"
+compose = "1.5.4"
+compose-material3 = "1.1.2"
+androidx-activityCompose = "1.9.3"
+purchases-common = "13.13.1"
+
 android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
-androidx-activityCompose = "1.9.1"
 androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.1.4"
 androidx-core-ktx = "1.13.1"
@@ -13,14 +18,13 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-plugin = "1.7.3"
 junit = "4.13.2"
-kotlin = "2.0.10"
 camerax_version = "1.4.1"
 koin = "4.0.0-RC1"
 ktor = "2.3.12"
 coroutines = "2.0.0"
 sqlDelight = "2.0.1"
 voyagerVersion = "1.1.0-beta02"
-molivesdkVersion = "0.0.6-dev4"
+molivesdkVersion = "1.0.0"
 kotlinxDatetime = "0.6.0"
 coil = "3.0.0-alpha10"
 napier = "2.7.1"
@@ -29,15 +33,19 @@ crashKios = "0.8.6"
 dataStore = "1.1.1"
 junitJupiter = "5.8.1"
 datePicker = "1.0.6"
-lifecycleRuntimeKtx = "2.8.7"
-composeBom = "2024.12.01"
-kotlinxSerialization = "1.7.3"
+purchases-kmp = "1.3.6+13.13.1"
 mlkit-barcode = "17.3.0"
 mlkit-text = "16.0.1"
 
-
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
@@ -46,7 +54,8 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+
+
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 
@@ -57,6 +66,8 @@ camerax-mlkit-playservices = { group = "com.google.android.gms", name = "play-se
 camerax-mlkit = { group = "androidx.camera", name = "camera-mlkit-vision", version.ref = "camerax_version" }
 mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit-barcode" }
 mlkit-text = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit-text" }
+
+playservice-coroutine = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version = "1.9.0" }
 
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
@@ -72,8 +83,6 @@ ktor-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
 sqlDelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqlDelight" }
 sqlDelight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
@@ -104,24 +113,22 @@ datePicker = { group = "network.chaintech", name = "kmp-date-time-picker", versi
 
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
 junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
-playservice-coroutine = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version = "1.9.0" }
+purchases-core = { module = "com.revenuecat.purchases:purchases-kmp-core", version.ref = "purchases-kmp" }
+purchases-datetime = { module = "com.revenuecat.purchases:purchases-kmp-datetime", version.ref = "purchases-kmp" }
+purchases-either = { module = "com.revenuecat.purchases:purchases-kmp-either", version.ref = "purchases-kmp" }
+purchases-result = { module = "com.revenuecat.purchases:purchases-kmp-result", version.ref = "purchases-kmp" }
+purchases-ui = { module = "com.revenuecat.purchases:purchases-kmp-ui", version.ref = "purchases-kmp" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 mokoResources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "mokoResources" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
