@@ -10,8 +10,14 @@ import com.moliveira.app.smartfridge.modules.sdk.BaseScreenModel
 import com.moliveira.app.smartfridge.modules.sdk.LocalizedString
 import com.moliveira.app.smartfridge.modules.sdk.localizedString
 import com.moliveira.app.smartfridge.notification_title_description
+import com.revenuecat.purchases.kmp.Purchases
+import com.revenuecat.purchases.kmp.configure
+import com.revenuecat.purchases.kmp.ktx.awaitCustomerInfo
+import com.revenuecat.purchases.kmp.ktx.awaitGetProducts
+import com.revenuecat.purchases.kmp.ktx.awaitOfferings
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -43,6 +49,38 @@ class HomeViewModel(
         ) { internalState, firstScan, buttonIsLoading ->
             converter(internalState, firstScan, buttonIsLoading)
         }
+
+    init {
+        viewModelScope.launch {
+            runCatching {
+//                val purchase = Purchases.configure(
+//                    apiKey = "appl_kpDdHqGWpHWbDzZvRTQvwRnQzsy",
+//                ) {
+//                    appUserId = "000001"
+//                }
+
+                delay(500)
+
+                launch {
+                    runCatching {
+//                        val products = purchase.awaitOfferings()
+//                            .current
+//                        Napier.d("products: $products")
+                    }
+                        .onFailure {
+                            Napier.e(throwable = it, message = "--- ERROR:")
+                        }
+                }
+
+                launch {
+                    runCatching {
+//                        val customerInfo = purchase.awaitCustomerInfo()
+//                        Napier.d("customerInfo: ${customerInfo.originalAppUserId}")
+                    }
+                }
+            }
+        }
+    }
 
     fun onBarcodeRecognized(text: String) {
         viewModelScope.launch(Dispatchers.Default) {

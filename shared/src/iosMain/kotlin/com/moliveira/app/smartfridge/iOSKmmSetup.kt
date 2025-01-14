@@ -1,5 +1,6 @@
 package com.moliveira.app.smartfridge
 
+import androidx.core.bundle.Bundle
 import com.moliveira.app.smartfridge.database.cache.DatabaseDriverFactory
 import com.moliveira.app.smartfridge.database.cache.IOSDatabaseDriverFactory
 import com.moliveira.app.smartfridge.modules.camera.KMMCameraRecognizerInterface
@@ -7,6 +8,8 @@ import com.moliveira.app.smartfridge.modules.notification.NotificationService
 import com.moliveira.app.smartfridge.modules.notification.NotificationServicePlatform
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilder
 import com.moliveira.app.smartfridge.modules.sdk.DataStoreBuilderPlatform
+import com.revenuecat.purchases.kmp.Purchases
+import com.revenuecat.purchases.kmp.configure
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -16,6 +19,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import platform.Foundation.NSBundle
 import platform.Foundation.NSSetUncaughtExceptionHandler
 import platform.posix.bind
 
@@ -31,6 +35,14 @@ object IOSKmmSetup {
         }
 
         AppModule.setup(koinApplication)
+
+
+        NSBundle.mainBundle.bundleIdentifier?.let {
+            Napier.d("Bundle identifier: $it")
+        } ?: run {
+            Napier.e("Bundle identifier not found")
+        }
+
     }
 
     private fun modules() = AppModule.modules() + listOf(platformModules())

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.moliveira.app.smartfridge.modules.sdk.isRunningOnSimulator
 
 @Composable
 fun inPreviewMode(): Boolean = LocalInspectionMode.current
@@ -21,7 +22,7 @@ fun CameraView(
     onTextRecognized: (String) -> Unit,
     onBarcodeRecognized: (String) -> Unit,
 ) {
-    if (inPreviewMode()) {
+    if (inPreviewMode() || isRunningOnSimulator()) {
         Box(
             modifier = modifier.background(Color.LightGray),
             contentAlignment = Alignment.Center,
