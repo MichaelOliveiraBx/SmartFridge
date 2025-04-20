@@ -63,3 +63,7 @@ private fun platformModules() = module {
     factoryOf(::DataStoreBuilderPlatform) { bind<DataStoreBuilder>() }
     singleOf(::NotificationServicePlatform) { bind<NotificationService>() }
 }
+
+fun logKmm(message: String) {
+    Napier.d(message)
+}
